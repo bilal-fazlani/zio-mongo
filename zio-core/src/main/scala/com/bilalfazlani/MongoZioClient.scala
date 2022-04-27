@@ -107,12 +107,6 @@ object MongoZioClient {
     */
   def apply(uri: String): Task[MongoZioClient] = MongoZioClient(uri, None)
 
-
-  /**
-    * Create an auto closable MongoZioClient instance from a connection string uri
-    */
-  def autoCloseableClient(uri: String): ZIO[Any, Throwable, MongoZioClient] = ZIO.scoped(ZIO.fromAutoCloseable(apply(uri)))
-
   /**
     * Create a MongoZioClient instance from a connection string uri
     */

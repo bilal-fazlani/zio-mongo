@@ -1,4 +1,5 @@
-package com.bilalfazlani.subscriptions
+package com.bilalfazlani
+package subscriptions
 
 import com.bilalfazlani.MongoTestClient.mongoTestClient
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
@@ -10,6 +11,7 @@ import zio.test.Assertion.equalTo
 import zio.test.TestEnvironment
 import zio.test.{ZIOSpecDefault, Spec, TestAspect, TestFailure, TestSuccess, assertM}
 import zio.Chunk
+import zio.Random
 
 object FindSubscriptionSpec extends ZIOSpecDefault {
 
@@ -19,21 +21,25 @@ object FindSubscriptionSpec extends ZIOSpecDefault {
 
   val database = mongoClient.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
 
-  val collection = database.flatMap(_.getCollection[Document]("test"))
+  def collection = for {
+    db <- database
+    name <- randomString(10)
+    coll <- db.getCollection(name)
+  } yield coll
 
   override def aspects: Chunk[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
     Chunk(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.fromMillis(30000)))
 
   def spec: Spec[TestEnvironment, TestFailure[Throwable], TestSuccess] = suite("FindSubscriptionSpec")(
-    findOptionalFirst(),
-    insertDocuments(),
-    findFirst(),
-    findAndFilterDocuments(),
-    findLimitedDocuments(),
-    findSkipDocuments(),
-    findProjectedDocuments(),
-    findSortedDocuments(),
-    close()
+    // findOptionalFirst(),
+    // insertDocuments(),
+    // findFirst(),
+    // findAndFilterDocuments(),
+    // findLimitedDocuments(),
+    // findSkipDocuments(),
+    // findProjectedDocuments(),
+    // findSortedDocuments(),
+    // close()
   )
 
   def insertDocuments() = {

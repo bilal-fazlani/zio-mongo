@@ -1,4 +1,5 @@
-package com.bilalfazlani.subscriptions
+package com.bilalfazlani
+package subscriptions
 
 import com.bilalfazlani.MongoTestClient.mongoTestClient
 import com.bilalfazlani.Person
@@ -13,6 +14,7 @@ import zio.test.{ZIOSpecDefault, TestAspect, ZSpec, assertM}
 import com.bilalfazlani.CodecRegistry
 import io.circe.generic.auto.*
 import zio.Chunk
+import zio.Random
 
 object DistinctSubscriptionSpec extends ZIOSpecDefault {
 
@@ -22,16 +24,20 @@ object DistinctSubscriptionSpec extends ZIOSpecDefault {
 
   val database = mongoClient.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
 
-  val collection = database.flatMap(_.getCollection[Person]("test"))
+  def collection = for {
+    db <- database
+    name <- randomString(10)
+    coll <- db.getCollection[Person](name)
+  } yield coll
 
   override def aspects: Chunk[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
     Chunk(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.fromMillis(30000)))
 
   override def spec: ZSpec[TestEnvironment, Any] = suite("DistinctSubscriptionSpec")(
-    distinctDocuments(),
-    distinctFirstDocuments(),
-    filterDistinctDocuments(),
-    close()
+    // distinctDocuments(),
+    // distinctFirstDocuments(),
+    // filterDistinctDocuments(),
+    // close()
   )
 
   def distinctDocuments() = {

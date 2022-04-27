@@ -1,4 +1,5 @@
-package com.bilalfazlani.subscriptions
+package com.bilalfazlani
+package subscriptions
 
 import com.mongodb.client.model.Accumulators.push
 import com.bilalfazlani.{ Company, FundingRound }
@@ -17,6 +18,7 @@ import zio.test.TestEnvironment
 import com.bilalfazlani.CodecRegistry
 import io.circe.generic.auto.*
 import zio.Chunk
+import zio.Random
 
 object AggregateSubscriptionSpec extends ZIOSpecDefault {
 
@@ -109,7 +111,11 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
 
   val database = mongoClient.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
 
-  val collection = database.flatMap(_.getCollection[Company]("test"))
+  val collection = for {
+    db <- database
+    name = "collection-AggregateSubscriptionSpec"
+    coll <- db.getCollection[Company](name)
+  } yield coll
 
   override def aspects: Chunk[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
     Chunk(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.Infinity))
@@ -119,8 +125,8 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
     insertCompanies(),
     aggregateSortedCompanies(),
     aggregateCompaniesByGroup(),
-    aggregateWithUnwind(),
-    closeConnection()
+    // aggregateWithUnwind(),
+    // closeConnection()
   )
 
   def initialCount(): ZSpec[Any, Throwable] = {
@@ -222,6 +228,7 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
           )
         )
         .fetch
+        .debug("fetched data")
     } yield result
 
     test("Find company names , funding rounds year and funding rounds amount limited to 3") {

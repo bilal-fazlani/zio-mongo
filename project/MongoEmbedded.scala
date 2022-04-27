@@ -4,11 +4,20 @@ import de.flapdoodle.embed.mongo.config.{ MongodConfig, Net}
 import java.util.concurrent.atomic.AtomicInteger
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.process.runtime.Network
+// import de.flapdoodle.embed.mongo.Command
+import de.flapdoodle.embed.mongo.config.Defaults
+import de.flapdoodle.embed.process.config.process
+import de.flapdoodle.embed.mongo.packageresolver.Command
 
 object MongoEmbedded {
 
   lazy val defaultPort = 27017
   lazy val host = "localhost"
+
+  val runtimeConfig = Defaults.runtimeConfigFor(Command.MongoD)
+    .processOutput(process.ProcessOutput.silent())
+    .build();
+
   lazy val mongodConfig = {
     MongodConfig
       .builder()
@@ -24,7 +33,7 @@ object MongoEmbedded {
 
   def start: Unit = synchronized {
     if (mongod == null) {
-      mongodExe = MongodStarter.getDefaultInstance.prepare(mongodConfig)
+      mongodExe = MongodStarter.getInstance(runtimeConfig).prepare(mongodConfig)
       mongod = mongodExe.start()
     }
     counter.incrementAndGet()
