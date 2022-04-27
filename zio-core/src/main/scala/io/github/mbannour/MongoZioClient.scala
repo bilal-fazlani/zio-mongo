@@ -111,7 +111,7 @@ object MongoZioClient {
   /**
     * Create an auto closable MongoZioClient instance from a connection string uri
     */
-  def autoCloseableClient(uri: String): ZManaged[Any, Throwable, MongoZioClient] = ZManaged.fromAutoCloseable(apply(uri))
+  def autoCloseableClient(uri: String): ZIO[Any, Throwable, MongoZioClient] = ZManaged.fromAutoCloseable(apply(uri))
 
   /**
     * Create a MongoZioClient instance from a connection string uri
