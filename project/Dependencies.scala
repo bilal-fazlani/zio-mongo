@@ -22,3 +22,9 @@ object Dependencies {
   lazy val zioMagnoliaTest = "dev.zio"       %% "zio-test-magnolia" % zioVersion
 
 }
+
+object Circe {
+  val circeVersion      = "0.15.0-M1"
+  lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
+  lazy val circeParser  = "io.circe" %% "circe-parser"  % circeVersion
+}

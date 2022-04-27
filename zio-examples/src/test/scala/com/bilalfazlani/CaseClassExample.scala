@@ -1,14 +1,22 @@
-package io.bilalfazlani
+package com.bilalfazlani
 
 import com.bilalfazlani.MongoZioClient
 import zio.{ ExitCode, Task, URIO, ZIO }
-import org.mongodb.scala.bson.codecs.Macros._
-import org.bson.codecs.configuration.CodecRegistries.{ fromProviders, fromRegistries }
+import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Updates.set
 import org.bson.codecs.configuration.CodecProvider
+import com.bilalfazlani.circe.given
+import com.bilalfazlani.MongoCodecProvider
+import io.circe.generic.auto.*
+import io.circe.Encoder
+import io.circe.Decoder
+import io.circe.JsonObject
+import io.circe.Json
+import scala.util.Try
+import io.circe.Codec
 
 object CaseClassExample extends zio.ZIOAppDefault {
 
@@ -27,10 +35,10 @@ object CaseClassExample extends zio.ZIOAppDefault {
     Person(new ObjectId(), "Zaphod", "Beeblebrox", 15)
   )
 
-  val codecRegistry = fromRegistries(fromProviders(classOf[Person]), DEFAULT_CODEC_REGISTRY)
+  val codecRegistry = fromRegistries(CodecRegistry[Person], DEFAULT_CODEC_REGISTRY)
 
-  val app = for {
-    client   <- MongoZioClient.autoCloseableClient("mongodb://localhost:27017")
+  val app = ZIO.scoped(for {
+    client   <- MongoZioClient("mongodb://localhost:27017")
     database <- client.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
     col      <- database.getCollection[Person]("test")
     _        <- col.insertMany(persons)
@@ -42,7 +50,7 @@ object CaseClassExample extends zio.ZIOAppDefault {
     person   <- col.find(equal("name", "Jean")).first().headOption
     _        <- zio.Console.printLine(s"Persons count: $count")
     _        <- zio.Console.printLine(s"The updated person with name Jean is: $person")
-  } yield ()
+  } yield ())
 
   override def run = app
 }

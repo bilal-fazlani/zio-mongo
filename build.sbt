@@ -1,7 +1,7 @@
 import Dependencies._
 
 ThisBuild / scalaVersion     := "3.1.2"
-ThisBuild / version          := "0.0.2"
+ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.bilalfazlani"
 ThisBuild / organizationName := "Bilal Fazlani"
 ThisBuild / description      := "ZIO wrapper for MongoDB Reactive Streams Java Driver"
@@ -14,7 +14,7 @@ lazy val ziomongo = (project in file("."))
   .settings(
     publish / skip := true
   )
-  .aggregate(zioCore, examples)
+  .aggregate(zioCore, ziomongoCirce, examples)
 
 lazy val zioCore = (project in file("zio-core"))
   .settings(
@@ -35,10 +35,25 @@ lazy val zioCore = (project in file("zio-core"))
     Test / parallelExecution := false
   )
 
+lazy val ziomongoCirce = (project in file("ziomongo-circe"))
+  .settings(
+    name := "ziomongo-circe",
+    libraryDependencies ++= Seq(
+        Circe.circeParser,
+        Circe.circeGeneric,
+        zioMagnoliaTest % Test,
+        zioTestSbt % Test,
+        zioTest % Test,
+        scalaTest % Test
+      ),
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+  )
+  .dependsOn(zioCore)
+
 lazy val examples = (project in file("zio-examples"))
   .settings(
     publish / skip := true
   )
-  .dependsOn(zioCore)
+  .dependsOn(zioCore, ziomongoCirce)
 
 
