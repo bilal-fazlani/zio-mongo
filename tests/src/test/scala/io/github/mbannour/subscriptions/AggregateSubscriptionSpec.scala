@@ -1,19 +1,22 @@
 package com.bilalfazlani.subscriptions
 
 import com.mongodb.client.model.Accumulators.push
-import com.bilalfazlani.{Company, FundingRound}
+import com.bilalfazlani.{ Company, FundingRound }
 import com.bilalfazlani.MongoTestClient.mongoTestClient
-import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
+import com.bilalfazlani.circe.given
+import org.bson.codecs.configuration.CodecRegistries.{ fromProviders, fromRegistries }
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
-import org.mongodb.scala.bson.{BsonArray, BsonInt32, BsonInt64, BsonString, ObjectId}
-import org.mongodb.scala.bson.codecs.Macros._
+import org.mongodb.scala.bson.{ BsonArray, BsonInt32, BsonInt64, BsonString, ObjectId }
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.model.{Aggregates, Filters, Projections}
-import zio.{Duration, ExecutionStrategy, ZIO}
+import org.mongodb.scala.model.{ Aggregates, Filters, Projections }
+import zio.{ Duration, ExecutionStrategy, ZIO }
 import zio.test.Assertion.equalTo
-import zio.test.{ZIOSpecDefault, TestAspect, ZSpec, assertM}
+import zio.test.{ TestAspect, ZIOSpecDefault, ZSpec, assertM }
 import zio.test.ZIOSpecDefault
 import zio.test.TestEnvironment
+import com.bilalfazlani.CodecRegistry
+import io.circe.generic.auto.*
+import zio.Chunk
 
 object AggregateSubscriptionSpec extends ZIOSpecDefault {
 
@@ -102,14 +105,14 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
 
   val mongoClient = mongoTestClient()
 
-  val codecRegistry = fromRegistries(fromProviders(classOf[Company], classOf[FundingRound]), DEFAULT_CODEC_REGISTRY)
+  val codecRegistry = fromRegistries(CodecRegistry[Company], CodecRegistry[FundingRound], DEFAULT_CODEC_REGISTRY)
 
   val database = mongoClient.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
 
   val collection = database.flatMap(_.getCollection[Company]("test"))
 
-  override def aspects: List[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
-    List(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.Infinity))
+  override def aspects: Chunk[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
+    Chunk(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.Infinity))
 
   override def spec: ZSpec[TestEnvironment, Any] = suite("AggregateSubscriptionSpec")(
     initialCount(),
@@ -213,7 +216,7 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
             Aggregates.project(
               Projections.fields(
                 Projections.excludeId(),
-                Projections.include(Seq("name", "funding_rounds.year", "funding_rounds.amount"):_*)
+                Projections.include(Seq("name", "funding_rounds.year", "funding_rounds.amount"): _*)
               )
             )
           )
@@ -222,11 +225,24 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
     } yield result
 
     test("Find company names , funding rounds year and funding rounds amount limited to 3") {
-      assertM(aggregatedResult)(equalTo(Seq(
-        Document("name" -> BsonString("Facebook"), "funding_rounds" -> Document("year" -> BsonInt32(2004), "amount" -> BsonInt64(8500000))),
-        Document("name" -> BsonString("Facebook"), "funding_rounds" -> Document("year" -> BsonInt32(2005), "amount" -> BsonInt64(2800000))),
-        Document("name" -> BsonString("Facebook"), "funding_rounds" -> Document("year" -> BsonInt32(2006), "amount" -> BsonInt64(28700000)))
-      )))
+      assertM(aggregatedResult)(
+        equalTo(
+          Seq(
+            Document(
+              "name"           -> BsonString("Facebook"),
+              "funding_rounds" -> Document("year" -> BsonInt32(2004), "amount" -> BsonInt64(8500000))
+            ),
+            Document(
+              "name"           -> BsonString("Facebook"),
+              "funding_rounds" -> Document("year" -> BsonInt32(2005), "amount" -> BsonInt64(2800000))
+            ),
+            Document(
+              "name"           -> BsonString("Facebook"),
+              "funding_rounds" -> Document("year" -> BsonInt32(2006), "amount" -> BsonInt64(28700000))
+            )
+          )
+        )
+      )
     }
   }
 

@@ -2,7 +2,7 @@ package com.bilalfazlani.subscriptions
 
 import com.bilalfazlani.MongoTestClient.mongoTestClient
 import com.bilalfazlani.Person
-import org.mongodb.scala.bson.codecs.Macros._
+import com.bilalfazlani.circe.given
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.model.Filters
@@ -10,19 +10,22 @@ import zio.{Duration, ExecutionStrategy}
 import zio.test.Assertion.equalTo
 import zio.test.TestEnvironment
 import zio.test.{ZIOSpecDefault, TestAspect, ZSpec, assertM}
+import com.bilalfazlani.CodecRegistry
+import io.circe.generic.auto.*
+import zio.Chunk
 
 object DistinctSubscriptionSpec extends ZIOSpecDefault {
 
   val mongoClient = mongoTestClient()
 
-  val codecRegistry = fromRegistries(fromProviders(classOf[Person]), DEFAULT_CODEC_REGISTRY)
+  val codecRegistry = fromRegistries(CodecRegistry[Person], DEFAULT_CODEC_REGISTRY)
 
   val database = mongoClient.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
 
   val collection = database.flatMap(_.getCollection[Person]("test"))
 
-  override def aspects: List[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
-    List(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.fromMillis(30000)))
+  override def aspects: Chunk[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
+    Chunk(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.fromMillis(30000)))
 
   override def spec: ZSpec[TestEnvironment, Any] = suite("DistinctSubscriptionSpec")(
     distinctDocuments(),

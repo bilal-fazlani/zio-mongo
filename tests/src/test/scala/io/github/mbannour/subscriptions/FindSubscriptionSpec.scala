@@ -9,6 +9,7 @@ import zio.{Duration, ExecutionStrategy}
 import zio.test.Assertion.equalTo
 import zio.test.TestEnvironment
 import zio.test.{ZIOSpecDefault, Spec, TestAspect, TestFailure, TestSuccess, assertM}
+import zio.Chunk
 
 object FindSubscriptionSpec extends ZIOSpecDefault {
 
@@ -20,8 +21,8 @@ object FindSubscriptionSpec extends ZIOSpecDefault {
 
   val collection = database.flatMap(_.getCollection[Document]("test"))
 
-  override def aspects: List[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
-    List(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.fromMillis(30000)))
+  override def aspects: Chunk[TestAspect[Nothing, TestEnvironment, Nothing, Any]] =
+    Chunk(TestAspect.executionStrategy(ExecutionStrategy.Sequential), TestAspect.timeout(Duration.fromMillis(30000)))
 
   def spec: Spec[TestEnvironment, TestFailure[Throwable], TestSuccess] = suite("FindSubscriptionSpec")(
     findOptionalFirst(),
