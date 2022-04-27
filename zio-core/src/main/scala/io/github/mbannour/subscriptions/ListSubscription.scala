@@ -1,4 +1,4 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
 import zio.IO
 
@@ -6,8 +6,8 @@ import scala.collection.mutable.ArrayBuffer
 
 case class ListSubscription[T](p: JavaPublisher[T]) extends Subscription[Iterable[T]] {
 
-  override def fetch[_]: IO[Throwable, Iterable[T]] =
-    IO.async[Throwable, Iterable[T]] { callback =>
+  override def fetch: IO[Throwable, Iterable[T]] =
+    IO.async[Any, Throwable, Iterable[T]] { callback =>
       p.subscribe {
         new JavaSubscriber[T] {
 

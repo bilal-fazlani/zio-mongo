@@ -1,8 +1,8 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
 import com.mongodb.client.model.Accumulators.push
-import io.github.mbannour.{Company, FundingRound}
-import io.github.mbannour.MongoTestClient.mongoTestClient
+import com.bilalfazlani.{Company, FundingRound}
+import com.bilalfazlani.MongoTestClient.mongoTestClient
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.{BsonArray, BsonInt32, BsonInt64, BsonString, ObjectId}
@@ -11,10 +11,11 @@ import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.{Aggregates, Filters, Projections}
 import zio.{Duration, ExecutionStrategy, ZIO}
 import zio.test.Assertion.equalTo
-import zio.test.environment.TestEnvironment
-import zio.test.{DefaultRunnableSpec, TestAspect, ZSpec, assertM}
+import zio.test.{ZIOSpecDefault, TestAspect, ZSpec, assertM}
+import zio.test.ZIOSpecDefault
+import zio.test.TestEnvironment
 
-object AggregateSubscriptionSpec extends DefaultRunnableSpec {
+object AggregateSubscriptionSpec extends ZIOSpecDefault {
 
   val companies = List(
     Company(

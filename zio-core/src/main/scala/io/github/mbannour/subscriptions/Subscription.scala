@@ -1,9 +1,9 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
 import zio.IO
 
 trait Subscription[T] {
 
-  def fetch[_]: IO[Throwable, T]
+  def fetch: IO[Throwable, T]
 
 }

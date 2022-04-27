@@ -1,4 +1,4 @@
-package io.github.mbannour
+package com.bilalfazlani
 
 import scala.reflect.ClassTag
 

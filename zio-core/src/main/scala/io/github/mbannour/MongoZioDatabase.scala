@@ -1,12 +1,12 @@
-package io.github.mbannour
+package com.bilalfazlani
 
 import com.mongodb.client.model.changestream.ChangeStreamDocument
 import com.mongodb.client.model.{CreateCollectionOptions, CreateViewOptions}
 import com.mongodb.{ReadConcern, ReadPreference, WriteConcern}
 import com.mongodb.reactivestreams.client.ClientSession
-import io.github.mbannour.DefaultHelper.MapTo
-import io.github.mbannour.result.Completed
-import io.github.mbannour.subscriptions.{AggregateSubscription, ChangeStreamSubscription, CompletedSubscription, ListCollectionsSubscription, SingleItemSubscription}
+import com.bilalfazlani.DefaultHelper.MapTo
+import com.bilalfazlani.result.Completed
+import com.bilalfazlani.subscriptions.{AggregateSubscription, ChangeStreamSubscription, CompletedSubscription, ListCollectionsSubscription, SingleItemSubscription}
 import org.bson
 
 import scala.jdk.CollectionConverters._

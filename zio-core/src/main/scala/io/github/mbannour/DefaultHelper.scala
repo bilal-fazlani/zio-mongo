@@ -1,6 +1,6 @@
-package io.github.mbannour
+package com.bilalfazlani
 
-protected[mbannour] object DefaultHelper {
+protected[bilalfazlani] object DefaultHelper {
 
   sealed class MapTo[A, B]
 

@@ -1,9 +1,9 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
 import com.mongodb.ExplainVerbosity
 import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.AggregatePublisher
-import io.github.mbannour.DefaultHelper.MapTo
+import com.bilalfazlani.DefaultHelper.MapTo
 import org.bson.conversions.Bson
 import org.mongodb.scala.bson.collection.immutable.Document
 import zio.IO
@@ -14,8 +14,8 @@ import scala.reflect.ClassTag
 
 case class AggregateSubscription[T](p: AggregatePublisher[T]) extends Subscription[Iterable[T]] {
 
-  override def fetch[_]: IO[Throwable, Iterable[T]] =
-    IO.async[Throwable, Iterable[T]] { callback =>
+  override def fetch: IO[Throwable, Iterable[T]] =
+    IO.async[Any, Throwable, Iterable[T]] { callback =>
       p.subscribe {
         new JavaSubscriber[T] {
 

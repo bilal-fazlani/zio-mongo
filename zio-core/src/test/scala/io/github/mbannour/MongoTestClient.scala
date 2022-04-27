@@ -1,7 +1,7 @@
-package io.github.mbannour
+package com.bilalfazlani
 
 import com.mongodb.{ConnectionString, MongoClientSettings}
-import io.github.mbannour.MongoZioClient.createMongoClient
+import com.bilalfazlani.MongoZioClient.createMongoClient
 
 object MongoTestClient {
 

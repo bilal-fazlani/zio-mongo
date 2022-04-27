@@ -1,16 +1,16 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
-import io.github.mbannour.MongoTestClient.mongoTestClient
+import com.bilalfazlani.MongoTestClient.mongoTestClient
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.mongodb.scala.Document
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.model.{Filters, Projections, Sorts}
 import zio.{Duration, ExecutionStrategy}
 import zio.test.Assertion.equalTo
-import zio.test.environment.TestEnvironment
-import zio.test.{DefaultRunnableSpec, Spec, TestAspect, TestFailure, TestSuccess, assertM}
+import zio.test.TestEnvironment
+import zio.test.{ZIOSpecDefault, Spec, TestAspect, TestFailure, TestSuccess, assertM}
 
-object FindSubscriptionSpec extends DefaultRunnableSpec {
+object FindSubscriptionSpec extends ZIOSpecDefault {
 
   val mongoClient = mongoTestClient()
 

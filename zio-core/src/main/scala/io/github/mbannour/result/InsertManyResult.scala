@@ -1,4 +1,4 @@
-package io.github.mbannour.result
+package com.bilalfazlani.result
 
 import scala.jdk.CollectionConverters._
 import com.mongodb.client.result.{InsertManyResult => JInsertManyResult}

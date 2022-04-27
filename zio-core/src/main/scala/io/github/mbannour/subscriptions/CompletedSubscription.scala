@@ -1,11 +1,11 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
-import io.github.mbannour.result.Completed
+import com.bilalfazlani.result.Completed
 import zio.IO
 
 case class CompletedSubscription(p: JavaPublisher[Void]) extends Subscription[Completed] {
 
-  override def fetch[_]: IO[Throwable, Completed] = IO.async[Throwable, Completed] { callback =>
+  override def fetch: IO[Throwable, Completed] = IO.async[Any, Throwable, Completed] { callback =>
     p.subscribe {
       new JavaSubscriber[Void] {
 

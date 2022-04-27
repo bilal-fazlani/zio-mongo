@@ -1,4 +1,4 @@
-package io.github.mbannour.result
+package com.bilalfazlani.result
 
 import com.mongodb.client.result.{ InsertOneResult => JInsertOneResult }
 import org.bson.BsonValue

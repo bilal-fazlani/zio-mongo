@@ -1,4 +1,4 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
 import com.mongodb.reactivestreams.client.ListCollectionsPublisher
 import org.bson.conversions.Bson
@@ -10,7 +10,7 @@ import scala.collection.mutable.ArrayBuffer
 
 case class ListCollectionsSubscription[T](p: ListCollectionsPublisher[T]) extends Subscription[Iterable[T]] {
 
-  override def fetch[_]: IO[Throwable, Iterable[T]] = IO.async[Throwable, Iterable[T]] { callback =>
+  override def fetch: IO[Throwable, Iterable[T]] = IO.async[Any, Throwable, Iterable[T]] { callback =>
     p.subscribe {
       new JavaSubscriber[T] {
 

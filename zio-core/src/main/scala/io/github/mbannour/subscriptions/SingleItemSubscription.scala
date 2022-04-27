@@ -1,10 +1,10 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
 import zio.{IO, Ref}
 
 case class SingleItemSubscription[T](p: JavaPublisher[T]) extends Subscription[T] {
 
-  override def fetch[_]: IO[Throwable, T] = IO.async[Throwable, T] { callback =>
+  override def fetch: IO[Throwable, T] = IO.async[Any, Throwable, T] { callback =>
     p.subscribe {
       new JavaSubscriber[T] {
         @volatile
@@ -21,7 +21,7 @@ case class SingleItemSubscription[T](p: JavaPublisher[T]) extends Subscription[T
     }
   }
 
-  def headOption[_]: IO[Throwable, Option[T]] = IO.async[Throwable, Option[T]] { callback =>
+  def headOption: IO[Throwable, Option[T]] = IO.async[Any, Throwable, Option[T]] { callback =>
     p.subscribe {
       new JavaSubscriber[T] {
         @volatile

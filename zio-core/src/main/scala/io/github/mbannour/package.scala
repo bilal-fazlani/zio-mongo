@@ -1,9 +1,9 @@
-package io.github
+package com
 
 import scala.reflect.ClassTag
 
 
-package object mbannour {
+package object bilalfazlani {
 
   type JavaMongoDatabase = com.mongodb.reactivestreams.client.MongoDatabase
 

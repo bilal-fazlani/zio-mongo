@@ -1,9 +1,9 @@
-package io.github.mbannour.subscriptions
+package com.bilalfazlani.subscriptions
 
 import com.mongodb.client.model.Collation
 import com.mongodb.client.model.changestream.{ChangeStreamDocument, FullDocument}
 import com.mongodb.reactivestreams.client.ChangeStreamPublisher
-import io.github.mbannour.DefaultHelper.MapTo
+import com.bilalfazlani.DefaultHelper.MapTo
 import org.bson.{BsonDocument, BsonTimestamp}
 import org.mongodb.scala.bson.collection.immutable.Document
 import zio.IO
@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
 
 case class ChangeStreamSubscription[T](p: ChangeStreamPublisher[T]) extends Subscription[ChangeStreamDocument[T]] {
 
-  override def fetch[_]: IO[Throwable, ChangeStreamDocument[T]] = IO.async[Throwable, ChangeStreamDocument[T]] {
+  override def fetch: IO[Throwable, ChangeStreamDocument[T]] = IO.async[Any, Throwable, ChangeStreamDocument[T]] {
     callback =>
       p.subscribe {
         new JavaSubscriber[ChangeStreamDocument[T]] {

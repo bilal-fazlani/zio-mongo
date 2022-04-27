@@ -1,14 +1,14 @@
-package io.github.mbannour
+package com.bilalfazlani
 
 import com.mongodb.{ClientSessionOptions, ConnectionString, MongoClientSettings, MongoDriverInformation}
 import com.mongodb.reactivestreams.client.{ClientSession, MongoClients}
-import io.github.mbannour.DefaultHelper.MapTo
-import io.github.mbannour.subscriptions.{ChangeStreamSubscription, ListDatabasesSubscription, ListSubscription, SingleItemSubscription}
+import com.bilalfazlani.DefaultHelper.MapTo
+import com.bilalfazlani.subscriptions.{ChangeStreamSubscription, ListDatabasesSubscription, ListSubscription, SingleItemSubscription}
 import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.mongodb.scala.bson.collection.immutable.Document
-import zio.{IO, Task, ZIO, ZManaged}
+import zio.{IO, Task, ZIO}
 
 import scala.jdk.CollectionConverters._
 import java.io.Closeable
@@ -111,7 +111,7 @@ object MongoZioClient {
   /**
     * Create an auto closable MongoZioClient instance from a connection string uri
     */
-  def autoCloseableClient(uri: String): ZIO[Any, Throwable, MongoZioClient] = ZManaged.fromAutoCloseable(apply(uri))
+  def autoCloseableClient(uri: String): ZIO[Any, Throwable, MongoZioClient] = ZIO.scoped(ZIO.fromAutoCloseable(apply(uri)))
 
   /**
     * Create a MongoZioClient instance from a connection string uri
@@ -133,7 +133,7 @@ object MongoZioClient {
     ZIO.attempt(createMongoClient(clientSettings, mongoDriverInformation))
 
 
-  private[mbannour] def createMongoClient(clientSettings:MongoClientSettings, mongoDriverInformation: Option[MongoDriverInformation]) = {
+  private[bilalfazlani] def createMongoClient(clientSettings:MongoClientSettings, mongoDriverInformation: Option[MongoDriverInformation]) = {
     val builder = mongoDriverInformation match {
       case Some(info) => MongoDriverInformation.builder(info)
       case None => MongoDriverInformation.builder()

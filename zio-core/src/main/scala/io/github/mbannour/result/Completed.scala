@@ -1,4 +1,4 @@
-package io.github.mbannour.result
+package com.bilalfazlani.result
 
 /**
   * Completed replaces Void return type
