@@ -8,13 +8,14 @@ import com.bilalfazlani.DefaultHelper.MapTo
 import com.bilalfazlani.result.{Completed, DeleteResult, InsertManyResult, InsertOneResult, UpdateResult}
 import com.bilalfazlani.subscriptions._
 import org.bson
-
+import zio.interop.reactivestreams.*
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.mongodb.scala.bson.collection.immutable.Document
 import zio.{IO, ZIO}
+import zio.stream.ZStream
 
 
 case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
@@ -158,6 +159,9 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
     */
   def find[C]()(implicit e: C MapTo T, ct: ClassTag[C]): FindSubscription[C] =
     FindSubscription(wrapped.find(clazz(ct)))
+
+  def find1[C]()(implicit e: C MapTo T, ct: ClassTag[C]): ZStream[Any, Throwable, C] =
+    wrapped.find(clazz(ct)).toStream()
 
   /**
     * Finds all documents in the collection.

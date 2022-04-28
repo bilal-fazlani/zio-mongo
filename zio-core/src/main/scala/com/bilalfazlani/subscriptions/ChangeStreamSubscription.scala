@@ -7,29 +7,13 @@ import com.bilalfazlani.DefaultHelper.MapTo
 import org.bson.{BsonDocument, BsonTimestamp}
 import org.mongodb.scala.bson.collection.immutable.Document
 import zio.IO
-
+import zio.interop.reactivestreams.*
 import java.util.concurrent.TimeUnit
 import scala.reflect.ClassTag
 
-case class ChangeStreamSubscription[T](p: ChangeStreamPublisher[T]) extends Subscription[ChangeStreamDocument[T]] {
+case class ChangeStreamSubscription[T](p: ChangeStreamPublisher[T]) extends StreamSubscription[ChangeStreamDocument[T]] {
 
-  override def fetch: IO[Throwable, ChangeStreamDocument[T]] = IO.async[Any, Throwable, ChangeStreamDocument[T]] {
-    callback =>
-      p.subscribe {
-        new JavaSubscriber[ChangeStreamDocument[T]] {
-          @volatile
-          var docStream: ChangeStreamDocument[T] = _
-
-          override def onSubscribe(s: JavaSubscription): Unit = s.request(Long.MaxValue)
-
-          override def onError(t: Throwable): Unit = callback(IO.fail(t))
-
-          override def onComplete(): Unit = callback(IO.succeed(docStream))
-
-          override def onNext(t: ChangeStreamDocument[T]): Unit = docStream = t
-        }
-      }
-  }
+  override def fetch = p.toStream()
 
   def fullDocument(fullDocument: FullDocument): ChangeStreamSubscription[T] = this.copy(p.fullDocument(fullDocument))
 

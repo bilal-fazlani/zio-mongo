@@ -4,13 +4,13 @@ package subscriptions
 import com.bilalfazlani.MongoTestClient.mongoTestClient
 import com.bilalfazlani.Person
 import com.bilalfazlani.circe.given
-import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
+import org.bson.codecs.configuration.CodecRegistries.{ fromProviders, fromRegistries }
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.model.Filters
-import zio.{Duration, ExecutionStrategy}
+import zio.{ Duration, ExecutionStrategy }
 import zio.test.Assertion.equalTo
 import zio.test.TestEnvironment
-import zio.test.{ZIOSpecDefault, TestAspect, ZSpec, assertM}
+import zio.test.{ TestAspect, ZIOSpecDefault, ZSpec, assertM }
 import com.bilalfazlani.CodecRegistry
 import io.circe.generic.auto.*
 import zio.Chunk
@@ -25,7 +25,7 @@ object DistinctSubscriptionSpec extends ZIOSpecDefault {
   val database = mongoClient.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
 
   def collection = for {
-    db <- database
+    db   <- database
     name <- randomString(10)
     coll <- db.getCollection[Person](name)
   } yield coll
@@ -51,7 +51,7 @@ object DistinctSubscriptionSpec extends ZIOSpecDefault {
           Person("Yasmin", 30)
         )
       )
-      doc <- col.distinct[String]("name").fetch
+      doc <- col.distinct[String]("name").fetch.runCollect
     } yield doc
 
     test("Get distinct Persons by name") {
@@ -73,7 +73,7 @@ object DistinctSubscriptionSpec extends ZIOSpecDefault {
   def filterDistinctDocuments() = {
     val names = for {
       col <- collection
-      doc <- col.distinct[String]("name").filter(Filters.gt("age", 30)).fetch
+      doc <- col.distinct[String]("name").filter(Filters.gt("age", 30)).fetch.runCollect
     } yield doc
 
     test("Get filtered persons with age greater than 30") {
@@ -81,16 +81,15 @@ object DistinctSubscriptionSpec extends ZIOSpecDefault {
     }
   }
 
-  def close() = {
+  def close() =
     test("Close database and clean") {
-      val close =    for {
+      val close = for {
         col <- collection
-        _ <- col.drop()
-        _ <- mongoClient.pureClose()
+        _   <- col.drop()
+        _   <- mongoClient.pureClose()
 
       } yield ()
       assertM(close)(equalTo(()))
     }
-  }
 
 }

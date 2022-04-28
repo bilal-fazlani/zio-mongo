@@ -4,31 +4,16 @@ import com.mongodb.client.model.Collation
 import com.mongodb.reactivestreams.client.DistinctPublisher
 import org.bson.conversions.Bson
 import zio.IO
-
+import zio.interop.reactivestreams.*
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable.ArrayBuffer
+import zio.stream.ZSink
 
-case class DistinctSubscription[T](p: DistinctPublisher[T]) extends Subscription[Iterable[T]] {
+case class DistinctSubscription[T](p: DistinctPublisher[T]) extends StreamSubscription[T] {
 
-  override def fetch: IO[Throwable, Iterable[T]] =
-    IO.async[Any, Throwable, Iterable[T]] { callback =>
-      p.subscribe {
-        new JavaSubscriber[T] {
-          val items = new ArrayBuffer[T]()
+  override def fetch = p.toStream()
 
-          override def onSubscribe(s: JavaSubscription): Unit = s.request(Long.MaxValue)
-
-          override def onNext(t: T): Unit = items += t
-
-          override def onError(t: Throwable): Unit = callback(IO.fail(t))
-
-          override def onComplete(): Unit = callback(IO.succeed(items.toList))
-        }
-      }
-    }
-
-
-  def headOption: IO[Throwable, Option[T]] = fetch.map(_.headOption)
+  def headOption: IO[Throwable, Option[T]] = fetch.run(ZSink.head)
 
   def filter(filter: Bson): DistinctSubscription[T] = this.copy(p.filter(filter))
 

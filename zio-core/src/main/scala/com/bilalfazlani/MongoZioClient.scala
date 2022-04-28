@@ -49,12 +49,12 @@ case class MongoZioClient(private val wrapped: JavaMongoClient) extends Closeabl
   /**
     * Get a list of the database names
     */
-  def listDatabaseNames(): IO[Throwable, Iterable[String]] = ListSubscription(wrapped.listDatabaseNames()).fetch
+  def listDatabaseNames() = ListSubscription(wrapped.listDatabaseNames()).fetch
 
   /**
     * Get a list of the database names
     */
-  def listDatabaseNames(clientSession: ClientSession): IO[Throwable, Iterable[String]] =
+  def listDatabaseNames(clientSession: ClientSession) =
     ListSubscription(wrapped.listDatabaseNames(clientSession)).fetch
 
   /**

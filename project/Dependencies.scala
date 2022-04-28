@@ -11,9 +11,10 @@ object Dependencies {
   lazy val mongoScala = ("org.mongodb.scala" %% "mongo-scala-driver" % mongoVersion).cross(CrossVersion.for3Use2_13)
   lazy val mongodbDriverStreams =
     "org.mongodb" % "mongodb-driver-reactivestreams" % mongoVersion
-  lazy val zio        = "dev.zio"       %% "zio"             % zioVersion
-  lazy val zioStreams = "dev.zio"       %% "zio-streams"     % zioVersion
-  lazy val logback    = "ch.qos.logback" % "logback-classic" % logbackVersion % Test
+  lazy val zio             = "dev.zio"       %% "zio"                         % zioVersion
+  lazy val zioStreams      = "dev.zio"       %% "zio-streams"                 % zioVersion
+  lazy val zstreamInterops = "dev.zio"       %% "zio-interop-reactivestreams" % "2.0.0-RC6"
+  lazy val logback         = "ch.qos.logback" % "logback-classic"             % logbackVersion % Test
 
   //Test
   lazy val scalaTest       = "org.scalatest" %% "scalatest"         % scalaTestVersion

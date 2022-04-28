@@ -29,7 +29,8 @@ lazy val zioCore: Project = (project in file("zio-core"))
       mongodbDriverStreams,
       logback,
       zio,
-      zioStreams
+      zioStreams,
+      zstreamInterops
     )
   )
 

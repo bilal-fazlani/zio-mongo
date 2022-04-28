@@ -19,6 +19,104 @@ import com.bilalfazlani.CodecRegistry
 import io.circe.generic.auto.*
 import zio.Chunk
 import zio.Random
+import zio.stream.ZStream
+import zio.interop.reactivestreams.*
+
+val companies = List(
+    Company(
+      new ObjectId(),
+      "Facebook",
+      "social",
+      2004,
+      "Social Network",
+      List(FundingRound(2004, 8500000), FundingRound(2005, 2800000), FundingRound(2006, 28700000))
+    ),
+    Company(
+      new ObjectId(),
+      "Veveo",
+      "private",
+      2004,
+      "Conversational interfaces",
+      List(FundingRound(2004, 780000), FundingRound(2005, 990000), FundingRound(2006, 29870000))
+    ),
+    Company(
+      new ObjectId(),
+      "AddThis",
+      "social",
+      2004,
+      "Social Network",
+      List(FundingRound(2004, 80000), FundingRound(2005, 2110000), FundingRound(2006, 89700000))
+    ),
+    Company(
+      new ObjectId(),
+      "Veoh",
+      "social",
+      2004,
+      "Social Network",
+      List(FundingRound(2004, 50000), FundingRound(2005, 90000), FundingRound(2006, 9000005))
+    ),
+    Company(
+      new ObjectId(),
+      "Pando Networks",
+      "social",
+      2004,
+      "Social Network",
+      List(FundingRound(2004, 78000), FundingRound(2005, 1110000), FundingRound(2005, 78900000))
+    ),
+    Company(
+      new ObjectId(),
+      "Afiniti Ltd",
+      "private",
+      2005,
+      "Artificial intelligence",
+      List(FundingRound(2005, 60000), FundingRound(2006, 890000), FundingRound(2007, 29900000))
+    ),
+    Company(
+      new ObjectId(),
+      "LucidEra",
+      "private",
+      2005,
+      " business intelligence",
+      List(FundingRound(2005, 84440000), FundingRound(2006, 21210000), FundingRound(2007, 234350000))
+    ),
+    Company(
+      new ObjectId(),
+      "gamerDNA",
+      "social",
+      2006,
+      "video game",
+      List(FundingRound(2006, 898900), FundingRound(2007, 660000), FundingRound(2008, 35400000))
+    ),
+    Company(
+      new ObjectId(),
+      "Sunamp",
+      "private",
+      2006,
+      "Sunamp",
+      List(FundingRound(2006, 60000), FundingRound(2007, 2880000), FundingRound(2008, 29990000))
+    ),
+    Company(
+      new ObjectId(),
+      "Fiksu",
+      "social",
+      2008,
+      "Social Network",
+      List(FundingRound(2008, 70000), FundingRound(2009, 550000), FundingRound(2010, 342340000))
+    )
+  )
+
+object TestObj extends zio.ZIOAppDefault {
+  val mongoClient = mongoTestClient()
+
+  val codecRegistry = fromRegistries(CodecRegistry[Company], DEFAULT_CODEC_REGISTRY)
+
+  override def run = for {
+    database <- mongoClient.getDatabase("testdb").map(_.withCodecRegistry(codecRegistry))
+    collection <- database.getCollection[Company]("companies")
+    csp <- collection.watch().fetch.runCollect
+    // ff = d
+  } yield ()
+}  
 
 object AggregateSubscriptionSpec extends ZIOSpecDefault {
 
@@ -153,7 +251,7 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
   }
 
   def aggregateSortedCompanies(): ZSpec[Any, Throwable] = {
-    val aggregatedResult: ZIO[Any, Throwable, Iterable[Document]] = for {
+    val aggregatedResult = for {
       col <- collection
       res <- col
         .aggregate(
@@ -169,7 +267,7 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
             )
           )
         )
-        .fetch
+        .fetch.runCollect
     } yield res
 
     test("Find sorted company names founded in 2004 and limited to two") {
@@ -192,11 +290,11 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
           Seq(
             Aggregates.`match`(Filters.gte("founded_year", 2004)),
             Aggregates.group("$founded_year", push("companies", "$name")),
-            Aggregates.sort(Filters.equal("_id.founded_year", 1)),
+            Aggregates.sort(Filters.equal("founded_year", 1)),
             Aggregates.limit(2)
           )
         )
-        .fetch
+        .fetch.runCollect
     } yield res
     test("Find sorted company names founded in 2004 and limited to two") {
       assertM(aggregatedResult)(
@@ -227,7 +325,7 @@ object AggregateSubscriptionSpec extends ZIOSpecDefault {
             )
           )
         )
-        .fetch
+        .fetch.runCollect
         .debug("fetched data")
     } yield result
 

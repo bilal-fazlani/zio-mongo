@@ -17,6 +17,7 @@ import io.circe.JsonObject
 import io.circe.Json
 import scala.util.Try
 import io.circe.Codec
+import zio.stream.ZSink
 
 object CaseClassExample extends zio.ZIOAppDefault {
 
@@ -42,14 +43,14 @@ object CaseClassExample extends zio.ZIOAppDefault {
     database <- client.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
     col      <- database.getCollection[Person]("test")
     _        <- col.insertMany(persons)
-    _        <- col.find().first().fetch
-    _        <- col.find(equal("name", "Ida")).first().fetch
+    f        <- col.find1().run(ZSink.head)
+    // _        <- col.find(equal("name", "Ida")).first().fetch
     _        <- col.updateOne(equal("name", "Jean"), set("lastName", "Bannour"))
     _        <- col.deleteOne(equal("name", "Zaphod"))
     count    <- col.countDocuments()
-    person   <- col.find(equal("name", "Jean")).first().headOption
+    // person   <- col.find(equal("name", "Jean")).first().headOption
     _        <- zio.Console.printLine(s"Persons count: $count")
-    _        <- zio.Console.printLine(s"The updated person with name Jean is: $person")
+    // _        <- zio.Console.printLine(s"The updated person with name Jean is: $person")
   } yield ())
 
   override def run = app

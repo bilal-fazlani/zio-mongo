@@ -7,30 +7,14 @@ import com.bilalfazlani.DefaultHelper.MapTo
 import org.bson.conversions.Bson
 import org.mongodb.scala.bson.collection.immutable.Document
 import zio.IO
-
+import zio.interop.reactivestreams.*
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
-case class AggregateSubscription[T](p: AggregatePublisher[T]) extends Subscription[Iterable[T]] {
+case class AggregateSubscription[T](p: AggregatePublisher[T]) extends StreamSubscription[T] {
 
-  override def fetch: IO[Throwable, Iterable[T]] =
-    IO.async[Any, Throwable, Iterable[T]] { callback =>
-      p.subscribe {
-        new JavaSubscriber[T] {
-
-          val items = new ArrayBuffer[T]()
-
-          override def onSubscribe(s: JavaSubscription): Unit = s.request(Long.MaxValue)
-
-          override def onNext(t: T): Unit = items += t
-
-          override def onError(t: Throwable): Unit = callback(IO.fail(t))
-
-          override def onComplete(): Unit = callback(IO.succeed(items.toSeq))
-        }
-      }
-    }
+  override def fetch = p.toStream()
 
   /**
     * Enables writing to temporary files. A null value indicates that it's unspecified.
