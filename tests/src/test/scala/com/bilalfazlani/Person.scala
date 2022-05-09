@@ -1,4 +1,4 @@
-package com.bilalfazlani
+package com.bilalfazlani.zioMongo
 
 import org.mongodb.scala.bson.ObjectId
 

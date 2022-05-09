@@ -6,7 +6,7 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.bilalfazlani"
 ThisBuild / organizationName := "Bilal Fazlani"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
-ThisBuild / description := "ZIO wrapper for MongoDB Reactive Streams Java Driver"
+// ThisBuild / description := "ZIO wrapper for MongoDB Reactive Streams Java Driver"
 ThisBuild / scmInfo := Some(
   ScmInfo(url("https://github.com/bilal-fazlani/zio-mongo"), "https://github.com/bilal-fazlani/zio-mongo.git")
 )
@@ -16,15 +16,16 @@ ThisBuild / developers := List(
 ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 ThisBuild / homepage := Some(url("https://github.com/bilal-fazlani/zio-mongo"))
 
-lazy val ziomongo = (project in file("."))
+lazy val zioMongoRoot = (project in file("."))
   .settings(
     publish / skip := true
   )
-  .aggregate(zioCore, ziomongoCirce, examples, tests)
+  .aggregate(zioMongo, zioMongoCirce, examples, tests)
 
-lazy val zioCore: Project = (project in file("zio-core"))
+lazy val zioMongo: Project = (project in file("zio-mongo"))
   .settings(
-    name := "ziomongo",
+    description := "ZIO wrapper for MongoDB Reactive Streams Java Driver",
+    name := "zio-mongo",
     libraryDependencies ++= Seq(
       mongoScala,
       mongodbDriverStreams,
@@ -35,14 +36,15 @@ lazy val zioCore: Project = (project in file("zio-core"))
     )
   )
 
-lazy val ziomongoCirce: Project = (project in file("ziomongo-circe"))
+lazy val zioMongoCirce: Project = (project in file("zio-mongo-circe"))
   .settings(
-    name := "ziomongo-circe",
+    description := "Circe codecs for zio-mongo",
+    name := "zio-mongo-circe",
     libraryDependencies ++= Seq(
       Circe.circeParser
     )
   )
-  .dependsOn(zioCore)
+  .dependsOn(zioMongo)
 
 lazy val tests: Project = (project in file("tests"))
   .settings(
@@ -58,20 +60,14 @@ lazy val tests: Project = (project in file("tests"))
     Test / testOptions ++= Seq(Tests.Setup(() => MongoEmbedded.start), Tests.Cleanup(() => MongoEmbedded.stop)),
     Test / parallelExecution := false
   )
-  .dependsOn(zioCore, ziomongoCirce)
+  .dependsOn(zioMongo, zioMongoCirce)
 
-lazy val isCI = {
-  val isCIStr = sys.env.get("CI")
-  def toBool(str:String) = Try(str.toBoolean).toOption
-  val isCI = isCIStr.flatMap(toBool)
-  isCI.getOrElse(false)
-}
 
-lazy val examples = (project in file("zio-examples"))
+lazy val examples = (project in file("zio-mongo-circe-examples"))
   .settings(
     publish / skip := true,
     libraryDependencies ++= Seq(
       Circe.circeGeneric
     )
   )
-  .dependsOn(zioCore, ziomongoCirce)
+  .dependsOn(zioMongo, zioMongoCirce)

@@ -1,7 +1,7 @@
-package com.bilalfazlani
+package com.bilalfazlani.zioMongo
 
 import com.mongodb.{ConnectionString, MongoClientSettings}
-import com.bilalfazlani.MongoZioClient.createMongoClient
+import MongoZioClient.createMongoClient
 
 object MongoTestClient {
 
