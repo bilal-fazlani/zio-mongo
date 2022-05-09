@@ -1,9 +1,8 @@
 import scala.util.Try
 import Dependencies._
 
-ThisBuild / scalaVersion     := "3.1.2"
-ThisBuild / version          := "0.1.0-SNAPSHOT"
-ThisBuild / organization     := "com.bilalfazlani"
+ThisBuild / scalaVersion := "3.1.2"
+ThisBuild / organization     := "com.bilal-fazlani"
 ThisBuild / organizationName := "Bilal Fazlani"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 ThisBuild / scmInfo := Some(
@@ -11,11 +10,11 @@ ThisBuild / scmInfo := Some(
 )
 ThisBuild / developers := List(
   Developer(
-        "bilal-fazlani",
-        "Bilal Fazlani",
-        "bilal.m.fazlani@gmail.com",
-        url("https://bilal-fazlani.com")
-      )
+    "bilal-fazlani",
+    "Bilal Fazlani",
+    "bilal.m.fazlani@gmail.com",
+    url("https://bilal-fazlani.com")
+  )
 )
 ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 ThisBuild / homepage := Some(url("https://github.com/bilal-fazlani/zio-mongo"))
@@ -29,7 +28,7 @@ lazy val zioMongoRoot = (project in file("."))
 lazy val zioMongo: Project = (project in file("zio-mongo"))
   .settings(
     description := "ZIO wrapper for MongoDB Reactive Streams Java Driver",
-    name := "zio-mongo",
+    name        := "zio-mongo",
     libraryDependencies ++= Seq(
       mongoScala,
       mongodbDriverStreams,
@@ -43,7 +42,7 @@ lazy val zioMongo: Project = (project in file("zio-mongo"))
 lazy val zioMongoCirce: Project = (project in file("zio-mongo-circe"))
   .settings(
     description := "Circe codecs for zio-mongo",
-    name := "zio-mongo-circe",
+    name        := "zio-mongo-circe",
     libraryDependencies ++= Seq(
       Circe.circeParser
     )
@@ -65,7 +64,6 @@ lazy val tests: Project = (project in file("tests"))
     Test / parallelExecution := false
   )
   .dependsOn(zioMongo, zioMongoCirce)
-
 
 lazy val examples = (project in file("zio-mongo-circe-examples"))
   .settings(
