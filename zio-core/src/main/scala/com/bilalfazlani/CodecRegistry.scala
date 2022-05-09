@@ -7,5 +7,4 @@ object CodecRegistry {
   def apply[T: MongoCodecProvider]: JCodecRegistry = fromProviders(
     MongoCodecProvider[T].get
   )
-  
 }

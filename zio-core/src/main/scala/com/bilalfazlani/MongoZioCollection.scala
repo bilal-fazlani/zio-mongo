@@ -2,11 +2,10 @@ package com.bilalfazlani
 
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model._
-import com.mongodb.{MongoNamespace, ReadConcern, ReadPreference, WriteConcern, client}
+import com.mongodb.{ MongoNamespace, ReadConcern, ReadPreference, WriteConcern, client }
 import com.mongodb.reactivestreams.client.ClientSession
 import com.bilalfazlani.DefaultHelper.MapTo
-import com.bilalfazlani.result.{Completed, DeleteResult, InsertManyResult, InsertOneResult, UpdateResult}
-import com.bilalfazlani.subscriptions._
+import com.bilalfazlani.result.{ Completed, DeleteResult, InsertManyResult, InsertOneResult, UpdateResult }
 import org.bson
 import zio.interop.reactivestreams.*
 import scala.jdk.CollectionConverters._
@@ -14,9 +13,12 @@ import scala.reflect.ClassTag
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.mongodb.scala.bson.collection.immutable.Document
-import zio.{IO, ZIO}
+import zio.{ IO, Task, ZIO }
 import zio.stream.ZStream
-
+import org.reactivestreams.Publisher
+import zio.stream.ZSink
+import java.{ util => ju }
+import org.reactivestreams.Subscriber
 
 case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
 
@@ -84,751 +86,717 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
   /**
     * Gets an estimate of the count of documents in a collection using collection metadata.
     */
-  def estimatedDocumentCount(): IO[Throwable, Long] =
-    SingleItemSubscription(wrapped.estimatedDocumentCount()).fetch.map(long2Long(_))
+  def estimatedDocumentCount() =
+    wrapped.estimatedDocumentCount().toZIO
 
   /**
     * Gets an estimate of the count of documents in a collection using collection metadata.
     */
-  def estimatedDocumentCount(options: EstimatedDocumentCountOptions): IO[Throwable, Long] =
-    SingleItemSubscription(wrapped.estimatedDocumentCount(options)).fetch.map(long2Long(_))
+  def estimatedDocumentCount(options: EstimatedDocumentCountOptions) =
+    wrapped.estimatedDocumentCount(options).toZIO
 
   /**
     * Counts the number of documents in the collection.
     */
-  def countDocuments(): ZIO[Any, Throwable, Long] =
-    SingleItemSubscription(wrapped.countDocuments()).fetch.map(long2Long(_))
+  def countDocuments() =
+    wrapped.countDocuments.toZIO
 
   /**
     * Counts the number of documents in the collection according to the given options.
     */
-  def countDocuments(filter: Bson): ZIO[Any, Throwable, Long] =
-    SingleItemSubscription(wrapped.countDocuments(filter)).fetch.map(long2Long(_))
+  def countDocuments(filter: Bson) =
+    wrapped.countDocuments(filter).toZIO
 
   /**
     * Counts the number of documents in the collection according to the given options.
     */
-  def countDocuments(filter: Bson, options: CountOptions): IO[Throwable, Long] =
-    SingleItemSubscription(wrapped.countDocuments(filter, options)).fetch.map(long2Long(_))
+  def countDocuments(filter: Bson, options: CountOptions) =
+    wrapped.countDocuments(filter, options).toZIO
 
   /**
     * Counts the number of documents in the collection.
-    *
     */
-  def countDocuments(clientSession: ClientSession): ZIO[Any, Throwable, Long] =
-    SingleItemSubscription(wrapped.countDocuments(clientSession)).fetch.map(long2Long(_))
+  def countDocuments(clientSession: ClientSession) =
+    wrapped.countDocuments(clientSession).toZIO
 
   /**
     * Counts the number of documents in the collection according to the given options.
     */
-  def countDocuments(clientSession: ClientSession, filter: Bson): ZIO[Any, Throwable, Long] =
-    SingleItemSubscription(wrapped.countDocuments(clientSession, filter)).fetch.map(long2Long(_))
+  def countDocuments(clientSession: ClientSession, filter: Bson) =
+    wrapped.countDocuments(clientSession, filter).toZIO
 
   /**
     * Counts the number of documents in the collection according to the given options.
     */
-  def countDocuments(clientSession: ClientSession, filter: Bson, options: CountOptions): ZIO[Any, Throwable, Long] =
-    SingleItemSubscription(wrapped.countDocuments(clientSession, filter, options)).fetch.map(long2Long(_))
+  def countDocuments(clientSession: ClientSession, filter: Bson, options: CountOptions) =
+    wrapped.countDocuments(clientSession, filter, options).toZIO
 
   /**
     * Gets the distinct values of the specified field name.
     */
-  def distinct[C](fieldName: String)(implicit e: C MapTo T, ct: ClassTag[C]): DistinctSubscription[C] =
-    DistinctSubscription(wrapped.distinct(fieldName, clazz(ct)))
+  def distinct[C](fieldName: String)(implicit e: C MapTo T, ct: ClassTag[C]) =
+    wrapped.distinct(fieldName, clazz(ct)).toZIOStream()
 
   /**
     * Gets the distinct values of the specified field name.
     */
-  def distinct[C](fieldName: String, filter: Bson)(implicit e: C MapTo T, ct: ClassTag[C]): DistinctSubscription[C] =
-    DistinctSubscription(wrapped.distinct(fieldName, filter, clazz(ct)))
+  def distinct[C](fieldName: String, filter: Bson)(implicit e: C MapTo T, ct: ClassTag[C]) =
+    wrapped.distinct(fieldName, filter, clazz(ct)).toZIOStream()
 
   /**
     * Gets the distinct values of the specified field name.
     */
-  def distinct[C](clientSession: ClientSession, fieldName: String)(implicit e: C MapTo T, ct: ClassTag[C]): DistinctSubscription[C] =
-    DistinctSubscription(wrapped.distinct(clientSession, fieldName, clazz(ct)))
+  def distinct[C](clientSession: ClientSession, fieldName: String)(implicit e: C MapTo T, ct: ClassTag[C]) =
+    wrapped.distinct(clientSession, fieldName, clazz(ct)).toZIOStream()
 
   /**
     * Gets the distinct values of the specified field name.
     */
-  def distinct[C](clientSession: ClientSession, fieldName: String, filter: Bson)(implicit e: C MapTo T, ct: ClassTag[C]): DistinctSubscription[C] =
-    DistinctSubscription(wrapped.distinct(clientSession, fieldName, filter, clazz(ct)))
+  def distinct[C](clientSession: ClientSession, fieldName: String, filter: Bson)(implicit
+      e: C MapTo T,
+      ct: ClassTag[C]
+  ) =
+    wrapped.distinct(clientSession, fieldName, filter, clazz(ct)).toZIOStream()
 
   /**
     * Finds all documents in the collection.
     */
-  def find[C]()(implicit e: C MapTo T, ct: ClassTag[C]): FindSubscription[C] =
-    FindSubscription(wrapped.find(clazz(ct)))
-
-  def find1[C]()(implicit e: C MapTo T, ct: ClassTag[C]): ZStream[Any, Throwable, C] =
-    wrapped.find(clazz(ct)).toStream()
+  def find[C](implicit e: C MapTo T, ct: ClassTag[C]): ZStream[Any, Throwable, C] =
+    wrapped.find(clazz(ct)).toZIOStream()
 
   /**
     * Finds all documents in the collection.
     */
-  def find[C](filter: Bson)(implicit e: C MapTo T, ct: ClassTag[C]): FindSubscription[C] =
-    FindSubscription(wrapped.find(filter, clazz(ct)))
+  def find[C](filter: Bson)(implicit e: C MapTo T, ct: ClassTag[C]): ZStream[Any, Throwable, C] =
+    wrapped.find(filter, clazz(ct)).toZIOStream()
 
   /**
     * Finds all documents in the collection.
     */
-  def find[C](clientSession: ClientSession)(implicit e: C MapTo Document, ct: ClassTag[C]): FindSubscription[C] =
-    FindSubscription(wrapped.find[C](clientSession, clazz(ct)))
+  def find[C](clientSession: ClientSession)(implicit e: C MapTo Document, ct: ClassTag[C]): ZStream[Any, Throwable, C] =
+    wrapped.find[C](clientSession, clazz(ct)).toZIOStream()
 
   /**
     * Finds all documents in the collection.
     */
-  def find[C](clientSession: ClientSession, filter: Bson)(implicit e: C MapTo Document, ct: ClassTag[C]): FindSubscription[C] =
-    FindSubscription(wrapped.find(clientSession, filter, clazz(ct)))
+  def find[C](clientSession: ClientSession, filter: Bson)(implicit
+      e: C MapTo Document,
+      ct: ClassTag[C]
+  ): ZStream[Any, Throwable, C] =
+    wrapped.find(clientSession, filter, clazz(ct)).toZIOStream()
 
   /**
     * Aggregates documents according to the specified aggregation pipeline.
     */
-  def aggregate[C](pipeline: Seq[Bson])(implicit e: C MapTo Document, ct: ClassTag[C]): AggregateSubscription[C] =
-    AggregateSubscription(wrapped.aggregate(pipeline.asJava, clazz(ct)))
+  def aggregate[C](pipeline: Seq[Bson])(implicit e: C MapTo Document, ct: ClassTag[C]) =
+    wrapped.aggregate(pipeline.asJava, clazz(ct)).toZIOStream()
 
   /**
     * Aggregates documents according to the specified aggregation pipeline.
     */
-  def aggregate[C](clientSession: ClientSession, pipeline: Seq[Bson])(implicit e: C MapTo Document, ct: ClassTag[C]): AggregateSubscription[C] =
-    AggregateSubscription(wrapped.aggregate(clientSession, pipeline.asJava, clazz(ct)))
+  def aggregate[C](clientSession: ClientSession, pipeline: Seq[Bson])(implicit
+      e: C MapTo Document,
+      ct: ClassTag[C]
+  ) =
+    wrapped.aggregate(clientSession, pipeline.asJava, clazz(ct)).toZIOStream()
 
   /**
     * Aggregates documents according to the specified map-reduce function.
     */
-  def mapReduce[C](mapFunction: String, reduceFunction: String)(implicit e: C MapTo Document, ct: ClassTag[C]): MapReduceSubscription[C] =
-    MapReduceSubscription(wrapped.mapReduce(mapFunction, reduceFunction, clazz(ct)))
+  def mapReduce[C](mapFunction: String, reduceFunction: String)(implicit
+      e: C MapTo Document,
+      ct: ClassTag[C]
+  ) =
+    wrapped.mapReduce(mapFunction, reduceFunction, clazz(ct)).toZIOStream()
 
   /**
     * Aggregates documents according to the specified map-reduce function.
-    *
     */
-  def mapReduce[C](clientSession: ClientSession, mapFunction: String, reduceFunction: String)(implicit e: C MapTo Document, ct: ClassTag[C]): MapReduceSubscription[C] =
-    MapReduceSubscription(wrapped.mapReduce(clientSession, mapFunction, reduceFunction, clazz(ct)))
+  def mapReduce[C](clientSession: ClientSession, mapFunction: String, reduceFunction: String)(implicit
+      e: C MapTo Document,
+      ct: ClassTag[C]
+  ) =
+    wrapped.mapReduce(clientSession, mapFunction, reduceFunction, clazz(ct)).toZIOStream()
 
   /**
     * Executes a mix of inserts, updates, replaces, and deletes.
-    *
     */
-  def bulkWrite(requests: Seq[_ <: WriteModel[_ <: T]]): IO[Throwable, BulkWriteResult] =
-    SingleItemSubscription(wrapped.bulkWrite(requests.asJava)).fetch
+  def bulkWrite(requests: Seq[_ <: WriteModel[_ <: T]]): Task[BulkWriteResult] =
+    wrapped.bulkWrite(requests.asJava).toZIO
 
   /**
     * Executes a mix of inserts, updates, replaces, and deletes.
-    *
     */
-  def bulkWrite(requests: Seq[_ <: WriteModel[_ <: T]], options: BulkWriteOptions): IO[Throwable, BulkWriteResult] =
-    SingleItemSubscription(wrapped.bulkWrite(requests.asJava, options)).fetch
+  def bulkWrite(requests: Seq[_ <: WriteModel[_ <: T]], options: BulkWriteOptions): Task[BulkWriteResult] =
+    wrapped.bulkWrite(requests.asJava, options).toZIO
 
   /**
     * Executes a mix of inserts, updates, replaces, and deletes.
-    *
     */
   def bulkWrite(
-                 clientSession: ClientSession,
-                 requests: Seq[_ <: WriteModel[_ <: T]]
-               ): IO[Throwable, BulkWriteResult] =
-    SingleItemSubscription(wrapped.bulkWrite(clientSession, requests.asJava)).fetch
+      clientSession: ClientSession,
+      requests: Seq[_ <: WriteModel[_ <: T]]
+  ): Task[BulkWriteResult] =
+    wrapped.bulkWrite(clientSession, requests.asJava).toZIO
 
   /**
     * Executes a mix of inserts, updates, replaces, and deletes.
-    *
     */
   def bulkWrite(
-                 clientSession: ClientSession,
-                 requests: Seq[_ <: WriteModel[_ <: T]],
-                 options: BulkWriteOptions
-               ): IO[Throwable, BulkWriteResult] =
-    SingleItemSubscription(wrapped.bulkWrite(clientSession, requests.asJava, options)).fetch
+      clientSession: ClientSession,
+      requests: Seq[_ <: WriteModel[_ <: T]],
+      options: BulkWriteOptions
+  ): Task[BulkWriteResult] =
+    wrapped.bulkWrite(clientSession, requests.asJava, options).toZIO
 
   /**
     * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
-    *
     */
-  def insertOne(document: T): IO[Throwable, InsertOneResult] =
-    SingleItemSubscription(wrapped.insertOne(document)).fetch.map(InsertOneResult.apply)
+  def insertOne(document: T): Task[InsertOneResult] =
+    wrapped.insertOne(document).toZIO.map(InsertOneResult.apply)
 
   /**
     * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
-    *
     */
-  def insertOne(document: T, options: InsertOneOptions): IO[Throwable, InsertOneResult] =
-    SingleItemSubscription(wrapped.insertOne(document, options)).fetch.map(InsertOneResult.apply)
+  def insertOne(document: T, options: InsertOneOptions): Task[InsertOneResult] =
+    wrapped.insertOne(document, options).toZIO.map(InsertOneResult.apply)
 
   /**
     * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
-    *
     */
-  def insertOne(clientSession: ClientSession, document: T): IO[Throwable, InsertOneResult] =
-    SingleItemSubscription(wrapped.insertOne(clientSession, document)).fetch.map(InsertOneResult.apply)
+  def insertOne(clientSession: ClientSession, document: T): Task[InsertOneResult] =
+    wrapped.insertOne(clientSession, document).toZIO.map(InsertOneResult.apply)
 
   /**
     * Inserts the provided document. If the document is missing an identifier, the driver should generate one.
-    *
     */
-  def insertOne(clientSession: ClientSession, document: T, options: InsertOneOptions): IO[Throwable, InsertOneResult] =
-    SingleItemSubscription(wrapped.insertOne(clientSession, document, options)).fetch.map(InsertOneResult.apply)
+  def insertOne(clientSession: ClientSession, document: T, options: InsertOneOptions): Task[InsertOneResult] =
+    wrapped.insertOne(clientSession, document, options).toZIO.map(InsertOneResult.apply)
 
   /**
     * Inserts a batch of documents. The preferred way to perform bulk inserts is to use the BulkWrite API. However, when
     * talking with a server &lt; 2.6, using this method will be faster due to constraints in the bulk API related to
     * error handling.
     */
-  def insertMany(documents: Seq[_ <: T]): IO[Throwable, InsertManyResult] =
-    SingleItemSubscription(wrapped.insertMany(documents.asJava)).fetch.map(InsertManyResult.apply)
+  def insertMany(documents: Seq[_ <: T]): Task[InsertManyResult] =
+    wrapped.insertMany(documents.asJava).toZIO.map(InsertManyResult.apply)
 
   /**
     * Inserts a batch of documents. The preferred way to perform bulk inserts is to use the BulkWrite API. However, when
     * talking with a server &lt; 2.6, using this method will be faster due to constraints in the bulk API related to
     * error handling.
-    *
     */
-  def insertMany(documents: Seq[_ <: T], options: InsertManyOptions): IO[Throwable, InsertManyResult] =
-    SingleItemSubscription(wrapped.insertMany(documents.asJava, options)).fetch.map(InsertManyResult.apply)
+  def insertMany(documents: Seq[_ <: T], options: InsertManyOptions): Task[InsertManyResult] =
+    wrapped.insertMany(documents.asJava, options).toZIO.map(InsertManyResult.apply)
 
   /**
     * Inserts a batch of documents. The preferred way to perform bulk inserts is to use the BulkWrite API.
-    *
     */
-  def insertMany(clientSession: ClientSession, documents: Seq[_ <: T]): IO[Throwable, InsertManyResult] =
-    SingleItemSubscription(wrapped.insertMany(clientSession, documents.asJava)).fetch.map(InsertManyResult.apply)
+  def insertMany(clientSession: ClientSession, documents: Seq[_ <: T]): Task[InsertManyResult] =
+    wrapped.insertMany(clientSession, documents.asJava).toZIO.map(InsertManyResult.apply)
 
   /**
     * Inserts a batch of documents. The preferred way to perform bulk inserts is to use the BulkWrite API.
-    *
     */
   def insertMany(
-                  clientSession: ClientSession,
-                  documents: Seq[_ <: T],
-                  options: InsertManyOptions
-                ): IO[Throwable, InsertManyResult] =
-    SingleItemSubscription(wrapped.insertMany(clientSession, documents.asJava, options)).fetch.map(InsertManyResult.apply)
+      clientSession: ClientSession,
+      documents: Seq[_ <: T],
+      options: InsertManyOptions
+  ): Task[InsertManyResult] =
+    wrapped.insertMany(clientSession, documents.asJava, options).toZIO.map(InsertManyResult.apply)
 
   /**
     * Removes at most one document from the collection that matches the given filter. If no documents match, the
     * collection is not modified.
-    *
     */
-  def deleteOne(filter: Bson): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteOne(filter)).fetch.map(DeleteResult.apply)
+  def deleteOne(filter: Bson): Task[DeleteResult] =
+    wrapped.deleteOne(filter).toZIO.map(DeleteResult.apply)
 
   /**
     * Removes at most one document from the collection that matches the given filter. If no documents match, the
     * collection is not modified.
-    *
     */
-  def deleteOne(filter: Bson, options: DeleteOptions): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteOne(filter, options)).fetch.map(DeleteResult.apply)
+  def deleteOne(filter: Bson, options: DeleteOptions): Task[DeleteResult] =
+    wrapped.deleteOne(filter, options).toZIO.map(DeleteResult.apply)
 
   /**
     * Removes at most one document from the collection that matches the given filter. If no documents match, the
     * collection is not modified.
-    *
     */
-  def deleteOne(clientSession: ClientSession, filter: Bson): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteOne(clientSession, filter)).fetch.map(DeleteResult.apply)
+  def deleteOne(clientSession: ClientSession, filter: Bson): Task[DeleteResult] =
+    wrapped.deleteOne(clientSession, filter).toZIO.map(DeleteResult.apply)
 
   /**
     * Removes at most one document from the collection that matches the given filter. If no documents match, the
     * collection is not modified.
-    *
     */
-  def deleteOne(clientSession: ClientSession, filter: Bson, options: DeleteOptions): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteOne(clientSession, filter, options)).fetch.map(DeleteResult.apply)
+  def deleteOne(clientSession: ClientSession, filter: Bson, options: DeleteOptions): Task[DeleteResult] =
+    wrapped.deleteOne(clientSession, filter, options).toZIO.map(DeleteResult.apply)
 
   /**
     * Removes all documents from the collection that match the given query filter. If no documents match, the collection
     * is not modified.
     */
-  def deleteMany(filter: Bson): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteMany(filter)).fetch.map(DeleteResult.apply)
+  def deleteMany(filter: Bson): Task[DeleteResult] =
+    wrapped.deleteMany(filter).toZIO.map(DeleteResult.apply)
 
   /**
     * Removes all documents from the collection that match the given query filter. If no documents match, the collection
     * is not modified.
-    *
     */
-  def deleteMany(filter: Bson, options: DeleteOptions): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteMany(filter, options)).fetch.map(DeleteResult.apply)
+  def deleteMany(filter: Bson, options: DeleteOptions): Task[DeleteResult] =
+    wrapped.deleteMany(filter, options).toZIO.map(DeleteResult.apply)
 
   /**
     * Removes all documents from the collection that match the given query filter. If no documents match, the collection
     * is not modified.
-    *
     */
-  def deleteMany(clientSession: ClientSession, filter: Bson): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteMany(clientSession, filter)).fetch.map(DeleteResult.apply)
+  def deleteMany(clientSession: ClientSession, filter: Bson): Task[DeleteResult] =
+    wrapped.deleteMany(clientSession, filter).toZIO.map(DeleteResult.apply)
 
   /**
     * Removes all documents from the collection that match the given query filter. If no documents match, the collection
     * is not modified.
-    *
     */
-  def deleteMany(clientSession: ClientSession, filter: Bson, options: DeleteOptions): IO[Throwable, DeleteResult] =
-    SingleItemSubscription(wrapped.deleteMany(clientSession, filter, options)).fetch.map(DeleteResult.apply)
+  def deleteMany(clientSession: ClientSession, filter: Bson, options: DeleteOptions): Task[DeleteResult] =
+    wrapped.deleteMany(clientSession, filter, options).toZIO.map(DeleteResult.apply)
 
   /**
     * Replace a document in the collection according to the specified arguments.
-    *
     */
-  def replaceOne(filter: Bson, replacement: T): IO[Throwable, client.result.UpdateResult] =
-    SingleItemSubscription(wrapped.replaceOne(filter, replacement)).fetch
+  def replaceOne(filter: Bson, replacement: T): Task[client.result.UpdateResult] =
+    wrapped.replaceOne(filter, replacement).toZIO
 
   /**
     * Replace a document in the collection according to the specified arguments.
-    *
     */
-  def replaceOne(clientSession: ClientSession, filter: Bson, replacement: T): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.replaceOne(clientSession, filter, replacement)).fetch.map(UpdateResult.apply)
-
+  def replaceOne(clientSession: ClientSession, filter: Bson, replacement: T): Task[UpdateResult] =
+    wrapped.replaceOne(clientSession, filter, replacement).toZIO.map(UpdateResult.apply)
 
   /**
     * Replace a document in the collection according to the specified arguments.
-    *
     */
-  def replaceOne(filter: Bson, replacement: T, options: ReplaceOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.replaceOne(filter, replacement, options)).fetch.map(UpdateResult.apply)
-
+  def replaceOne(filter: Bson, replacement: T, options: ReplaceOptions): Task[UpdateResult] =
+    wrapped.replaceOne(filter, replacement, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Replace a document in the collection according to the specified arguments.
-    *
     */
-  def replaceOne(clientSession: ClientSession, filter: Bson, replacement: T, options: ReplaceOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.replaceOne(clientSession, filter, replacement, options)).fetch.map(UpdateResult.apply)
-
+  def replaceOne(
+      clientSession: ClientSession,
+      filter: Bson,
+      replacement: T,
+      options: ReplaceOptions
+  ): Task[UpdateResult] =
+    wrapped.replaceOne(clientSession, filter, replacement, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(filter: Bson, update: Bson): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(filter, update)).fetch.map(UpdateResult.apply)
-
+  def updateOne(filter: Bson, update: Bson): Task[UpdateResult] =
+    wrapped.updateOne(filter, update).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(filter: Bson, update: Bson, options: UpdateOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(filter, update, options)).fetch.map(UpdateResult.apply)
-
+  def updateOne(filter: Bson, update: Bson, options: UpdateOptions): Task[UpdateResult] =
+    wrapped.updateOne(filter, update, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(clientSession: ClientSession, filter: Bson, update: Bson): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(clientSession, filter, update)).fetch.map(UpdateResult.apply)
-
+  def updateOne(clientSession: ClientSession, filter: Bson, update: Bson): Task[UpdateResult] =
+    wrapped.updateOne(clientSession, filter, update).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(clientSession: ClientSession, filter: Bson, update: Bson, options: UpdateOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(clientSession, filter, update, options)).fetch.map(UpdateResult.apply)
-
+  def updateOne(
+      clientSession: ClientSession,
+      filter: Bson,
+      update: Bson,
+      options: UpdateOptions
+  ): Task[UpdateResult] =
+    wrapped.updateOne(clientSession, filter, update, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(filter: Bson, update: Seq[Bson]): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(filter, update.asJava)).fetch.map(UpdateResult.apply)
-
+  def updateOne(filter: Bson, update: Seq[Bson]): Task[UpdateResult] =
+    wrapped.updateOne(filter, update.asJava).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(filter: Bson, update: Seq[Bson], options: UpdateOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(filter, update.asJava, options)).fetch.map(UpdateResult.apply)
-
+  def updateOne(filter: Bson, update: Seq[Bson], options: UpdateOptions): Task[UpdateResult] =
+    wrapped.updateOne(filter, update.asJava, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(clientSession: ClientSession, filter: Bson, update: Seq[Bson]): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(clientSession, filter, update.asJava)).fetch.map(UpdateResult.apply)
-
+  def updateOne(clientSession: ClientSession, filter: Bson, update: Seq[Bson]): Task[UpdateResult] =
+    wrapped.updateOne(clientSession, filter, update.asJava).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateOne(clientSession: ClientSession, filter: Bson, update: Seq[Bson], options: UpdateOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateOne(clientSession, filter, update.asJava, options)).fetch.map(UpdateResult.apply)
+  def updateOne(
+      clientSession: ClientSession,
+      filter: Bson,
+      update: Seq[Bson],
+      options: UpdateOptions
+  ): Task[UpdateResult] =
+    wrapped.updateOne(clientSession, filter, update.asJava, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateMany(filter: Bson, update: Bson): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(filter, update)).fetch.map(UpdateResult.apply)
+  def updateMany(filter: Bson, update: Bson): Task[UpdateResult] =
+    wrapped.updateMany(filter, update).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateMany(filter: Bson, update: Bson, options: UpdateOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(filter, update, options)).fetch.map(UpdateResult.apply)
+  def updateMany(filter: Bson, update: Bson, options: UpdateOptions): Task[UpdateResult] =
+    wrapped.updateMany(filter, update, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
     */
-  def updateMany(clientSession: ClientSession, filter: Bson, update: Bson): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(clientSession, filter, update)).fetch.map(UpdateResult.apply)
+  def updateMany(clientSession: ClientSession, filter: Bson, update: Bson): Task[UpdateResult] =
+    wrapped.updateMany(clientSession, filter, update).toZIO.map(UpdateResult.apply)
 
   /**
     * Update a single document in the collection according to the specified arguments.
-    *
-    */
-  def updateMany(clientSession: ClientSession, filter: Bson, update: Bson, options: UpdateOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(clientSession, filter, update, options)).fetch.map(UpdateResult.apply)
-
-  /**
-    * Update a single document in the collection according to the specified arguments.
-    *
-    */
-  def updateMany(filter: Bson, update: Seq[Bson]): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(filter, update.asJava)).fetch.map(UpdateResult.apply)
-
-  /**
-    * Update a single document in the collection according to the specified arguments.
-    *
-    */
-  def updateMany(filter: Bson, update: Seq[Bson], options: UpdateOptions): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(filter, update.asJava, options)).fetch.map(UpdateResult.apply)
-
-  /**
-    * Update a single document in the collection according to the specified arguments.
-    *
-    */
-  def updateMany(clientSession: ClientSession, filter: Bson, update: Seq[Bson]): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(clientSession, filter, update.asJava)).fetch.map(UpdateResult.apply)
-
-  /**
-    * Update a single document in the collection according to the specified arguments.
-    *
     */
   def updateMany(
-                  clientSession: ClientSession,
-                  filter: Bson,
-                  update: Seq[Bson],
-                  options: UpdateOptions
-                ): IO[Throwable, UpdateResult] =
-    SingleItemSubscription(wrapped.updateMany(clientSession, filter, update.asJava, options)).fetch.map(UpdateResult.apply)
+      clientSession: ClientSession,
+      filter: Bson,
+      update: Bson,
+      options: UpdateOptions
+  ): Task[UpdateResult] =
+    wrapped.updateMany(clientSession, filter, update, options).toZIO.map(UpdateResult.apply)
 
   /**
-    * Atomically find a document and remove it.
-    *
+    * Update a single document in the collection according to the specified arguments.
     */
-  def findOneAndDelete(filter: Bson): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndDelete(filter)).fetch
+  def updateMany(filter: Bson, update: Seq[Bson]): Task[UpdateResult] =
+    wrapped.updateMany(filter, update.asJava).toZIO.map(UpdateResult.apply)
 
   /**
-    * Atomically find a document and remove it.
-    *
+    * Update a single document in the collection according to the specified arguments.
     */
-  def findOneAndDelete(filter: Bson, options: FindOneAndDeleteOptions): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndDelete(filter, options)).fetch
+  def updateMany(filter: Bson, update: Seq[Bson], options: UpdateOptions): Task[UpdateResult] =
+    wrapped.updateMany(filter, update.asJava, options).toZIO.map(UpdateResult.apply)
 
   /**
-    * Atomically find a document and remove it.
-    *
+    * Update a single document in the collection according to the specified arguments.
     */
-  def findOneAndDelete(clientSession: ClientSession, filter: Bson): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndDelete(clientSession, filter)).fetch
+  def updateMany(clientSession: ClientSession, filter: Bson, update: Seq[Bson]): Task[UpdateResult] =
+    wrapped.updateMany(clientSession, filter, update.asJava).toZIO.map(UpdateResult.apply)
+
+  /**
+    * Update a single document in the collection according to the specified arguments.
+    */
+  def updateMany(
+      clientSession: ClientSession,
+      filter: Bson,
+      update: Seq[Bson],
+      options: UpdateOptions
+  ): Task[UpdateResult] =
+    wrapped.updateMany(clientSession, filter, update.asJava, options).toZIO.map(UpdateResult.apply)
 
   /**
     * Atomically find a document and remove it.
-    *
+    */
+  def findOneAndDelete(filter: Bson): Task[T] =
+    wrapped.findOneAndDelete(filter).toZIO
+
+  /**
+    * Atomically find a document and remove it.
+    */
+  def findOneAndDelete(filter: Bson, options: FindOneAndDeleteOptions): Task[T] =
+    wrapped.findOneAndDelete(filter, options).toZIO
+
+  /**
+    * Atomically find a document and remove it.
+    */
+  def findOneAndDelete(clientSession: ClientSession, filter: Bson): Task[T] =
+    wrapped.findOneAndDelete(clientSession, filter).toZIO
+
+  /**
+    * Atomically find a document and remove it.
     */
   def findOneAndDelete(
-                        clientSession: ClientSession,
-                        filter: Bson,
-                        options: FindOneAndDeleteOptions
-                      ): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndDelete(clientSession, filter, options)).fetch
+      clientSession: ClientSession,
+      filter: Bson,
+      options: FindOneAndDeleteOptions
+  ): Task[T] =
+    wrapped.findOneAndDelete(clientSession, filter, options).toZIO
 
   /**
     * Atomically find a document and replace it.
-    *
     */
-  def findOneAndReplace(filter: Bson, replacement: T): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndReplace(filter, replacement)).fetch
+  def findOneAndReplace(filter: Bson, replacement: T): Task[T] =
+    wrapped.findOneAndReplace(filter, replacement).toZIO
 
   /**
     * Atomically find a document and replace it.
-    *
     */
-  def findOneAndReplace(filter: Bson, replacement: T, options: FindOneAndReplaceOptions): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndReplace(filter, replacement, options)).fetch
+  def findOneAndReplace(filter: Bson, replacement: T, options: FindOneAndReplaceOptions): Task[T] =
+    wrapped.findOneAndReplace(filter, replacement, options).toZIO
 
   /**
     * Atomically find a document and replace it.
-    *
     */
-  def findOneAndReplace(clientSession: ClientSession, filter: Bson, replacement: T): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndReplace(clientSession, filter, replacement)).fetch
+  def findOneAndReplace(clientSession: ClientSession, filter: Bson, replacement: T): Task[T] =
+    wrapped.findOneAndReplace(clientSession, filter, replacement).toZIO
 
   /**
     * Atomically find a document and replace it.
-    *
     */
   def findOneAndReplace(
-                         clientSession: ClientSession,
-                         filter: Bson,
-                         replacement: T,
-                         options: FindOneAndReplaceOptions
-                       ): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndReplace(clientSession, filter, replacement, options)).fetch
+      clientSession: ClientSession,
+      filter: Bson,
+      replacement: T,
+      options: FindOneAndReplaceOptions
+  ): Task[T] =
+    wrapped.findOneAndReplace(clientSession, filter, replacement, options).toZIO
 
   /**
     * Atomically find a document and update it.
-    *
     */
-  def findOneAndUpdate(filter: Bson, update: Bson): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(filter, update)).fetch
+  def findOneAndUpdate(filter: Bson, update: Bson): Task[T] =
+    wrapped.findOneAndUpdate(filter, update).toZIO
 
   /**
     * Atomically find a document and update it.
-    *
     */
-  def findOneAndUpdate(filter: Bson, update: Bson, options: FindOneAndUpdateOptions): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(filter, update, options)).fetch
+  def findOneAndUpdate(filter: Bson, update: Bson, options: FindOneAndUpdateOptions): Task[T] =
+    wrapped.findOneAndUpdate(filter, update, options).toZIO
 
   /**
     * Atomically find a document and update it.
-    *
     */
-  def findOneAndUpdate(clientSession: ClientSession, filter: Bson, update: Bson): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(clientSession, filter, update)).fetch
+  def findOneAndUpdate(clientSession: ClientSession, filter: Bson, update: Bson): Task[T] =
+    wrapped.findOneAndUpdate(clientSession, filter, update).toZIO
 
   /**
     * Atomically find a document and update it.
-    *
-    */
-  def findOneAndUpdate(clientSession: ClientSession, filter: Bson, update: Bson, options: FindOneAndUpdateOptions): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(clientSession, filter, update, options)).fetch
-
-  /**
-    * Atomically find a document and update it.
-    *
-    */
-  def findOneAndUpdate(filter: Bson, update: Seq[Bson]): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(filter, update.asJava)).fetch
-
-  /**
-    * Atomically find a document and update it.
-    *
-    */
-  def findOneAndUpdate(filter: Bson, update: Seq[Bson], options: FindOneAndUpdateOptions): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(filter, update.asJava, options)).fetch
-
-  /**
-    * Atomically find a document and update it.
-    *
-    */
-  def findOneAndUpdate(clientSession: ClientSession, filter: Bson, update: Seq[Bson]): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(clientSession, filter, update.asJava)).fetch
-
-  /**
-    * Atomically find a document and update it.
-    *
     */
   def findOneAndUpdate(
-                        clientSession: ClientSession,
-                        filter: Bson,
-                        update: Seq[Bson],
-                        options: FindOneAndUpdateOptions
-                      ): IO[Throwable, T] =
-    SingleItemSubscription(wrapped.findOneAndUpdate(clientSession, filter, update.asJava, options)).fetch
+      clientSession: ClientSession,
+      filter: Bson,
+      update: Bson,
+      options: FindOneAndUpdateOptions
+  ): Task[T] =
+    wrapped.findOneAndUpdate(clientSession, filter, update, options).toZIO
+
   /**
-    * Drops this collection from the Database.
+    * Atomically find a document and update it.
     */
-  def drop(): IO[Throwable, Completed] = CompletedSubscription(wrapped.drop()).fetch
+  def findOneAndUpdate(filter: Bson, update: Seq[Bson]): Task[T] =
+    wrapped.findOneAndUpdate(filter, update.asJava).toZIO
+
+  /**
+    * Atomically find a document and update it.
+    */
+  def findOneAndUpdate(filter: Bson, update: Seq[Bson], options: FindOneAndUpdateOptions): Task[T] =
+    wrapped.findOneAndUpdate(filter, update.asJava, options).toZIO
+
+  /**
+    * Atomically find a document and update it.
+    */
+  def findOneAndUpdate(clientSession: ClientSession, filter: Bson, update: Seq[Bson]): Task[T] =
+    wrapped.findOneAndUpdate(clientSession, filter, update.asJava).toZIO
+
+  /**
+    * Atomically find a document and update it.
+    */
+  def findOneAndUpdate(
+      clientSession: ClientSession,
+      filter: Bson,
+      update: Seq[Bson],
+      options: FindOneAndUpdateOptions
+  ): Task[T] =
+    wrapped.findOneAndUpdate(clientSession, filter, update.asJava, options).toZIO
 
   /**
     * Drops this collection from the Database.
-    *
     */
-  def drop(clientSession: ClientSession): IO[Throwable, Completed] = CompletedSubscription(wrapped.drop(clientSession)).fetch
+  def drop(): Task[Completed] = wrapped.drop().toCompleted
 
   /**
-   * Creates an index
+    * Drops this collection from the Database.
     */
-  def createIndex(key: Bson): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndex(key)).fetch
+  def drop(clientSession: ClientSession): Task[Completed] = wrapped.drop(clientSession).toCompleted
 
   /**
-   *  Creates an index
+    * Creates an index
     */
-  def createIndex(key: Bson, options: IndexOptions): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndex(key, options)).fetch
+  def createIndex(key: Bson): Task[String] =
+    wrapped.createIndex(key).toZIO
 
   /**
-    *  Creates an index
+    * Creates an index
     */
-  def createIndex(clientSession: ClientSession, key: Bson): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndex(clientSession, key)).fetch
+  def createIndex(key: Bson, options: IndexOptions): Task[String] =
+    wrapped.createIndex(key, options).toZIO
 
   /**
-    *  Creates an index
+    * Creates an index
     */
-  def createIndex(clientSession: ClientSession, key: Bson, options: IndexOptions): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndex(clientSession, key, options)).fetch
+  def createIndex(clientSession: ClientSession, key: Bson): Task[String] =
+    wrapped.createIndex(clientSession, key).toZIO
 
   /**
-    *  Creates an index
+    * Creates an index
     */
-  def createIndexes(models: Seq[IndexModel]): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndexes(models.asJava)).fetch
+  def createIndex(clientSession: ClientSession, key: Bson, options: IndexOptions): Task[String] =
+    wrapped.createIndex(clientSession, key, options).toZIO
 
   /**
-    * Create multiple indexes.
-    *
+    * Creates an index
     */
-  def createIndexes(models: Seq[IndexModel], createIndexOptions: CreateIndexOptions): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndexes(models.asJava, createIndexOptions)).fetch
+  def createIndexes(models: Seq[IndexModel]): Task[String] =
+    wrapped.createIndexes(models.asJava).toZIO
 
   /**
     * Create multiple indexes.
-    *
     */
-  def createIndexes(clientSession: ClientSession, models: Seq[IndexModel]): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndexes(clientSession, models.asJava)).fetch
+  def createIndexes(models: Seq[IndexModel], createIndexOptions: CreateIndexOptions): Task[String] =
+    wrapped.createIndexes(models.asJava, createIndexOptions).toZIO
 
   /**
     * Create multiple indexes.
-    *
     */
-  def createIndexes(clientSession: ClientSession, models: Seq[IndexModel], createIndexOptions: CreateIndexOptions): IO[Throwable, String] =
-    SingleItemSubscription(wrapped.createIndexes(clientSession, models.asJava, createIndexOptions)).fetch
+  def createIndexes(clientSession: ClientSession, models: Seq[IndexModel]): Task[String] =
+    wrapped.createIndexes(clientSession, models.asJava).toZIO
+
+  /**
+    * Create multiple indexes.
+    */
+  def createIndexes(
+      clientSession: ClientSession,
+      models: Seq[IndexModel],
+      createIndexOptions: CreateIndexOptions
+  ): Task[String] =
+    wrapped.createIndexes(clientSession, models.asJava, createIndexOptions).toZIO
 
   /**
     * Get all the indexes in this collection.
-    *
     */
-  def listIndexes[C]()(implicit e: C MapTo Document, ct: ClassTag[C]): ListIndexesSubscription[C] =
-    ListIndexesSubscription(wrapped.listIndexes(clazz(ct)))
+  def listIndexes[C]()(implicit e: C MapTo Document, ct: ClassTag[C]) =
+    wrapped.listIndexes(clazz(ct)).toZIOStream()
 
   /**
     * Get all the indexes in this collection.
-    *
     */
-  def listIndexes[C](clientSession: ClientSession)(implicit e: C MapTo Document, ct: ClassTag[C]): ListIndexesSubscription[C] =
-    ListIndexesSubscription(wrapped.listIndexes(clientSession, clazz(ct)))
-
-  /**
-    * Drops the given index.
-    *
-    */
-  def dropIndex(indexName: String): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndex(indexName)).fetch
+  def listIndexes[C](
+      clientSession: ClientSession
+  )(implicit e: C MapTo Document, ct: ClassTag[C]) =
+    wrapped.listIndexes(clientSession, clazz(ct)).toZIOStream()
 
   /**
     * Drops the given index.
     */
-  def dropIndex(indexName: String, dropIndexOptions: DropIndexOptions): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndex(indexName, dropIndexOptions)).fetch
+  def dropIndex(indexName: String): Task[Completed] =
+    wrapped.dropIndex(indexName).toCompleted
+
+  /**
+    * Drops the given index.
+    */
+  def dropIndex(indexName: String, dropIndexOptions: DropIndexOptions): Task[Completed] =
+    wrapped.dropIndex(indexName, dropIndexOptions).toCompleted
 
   /**
     * Drops the index given the keys used to create it.
     */
-  def dropIndex(keys: Bson): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndex(keys)).fetch
+  def dropIndex(keys: Bson): Task[Completed] =
+    wrapped.dropIndex(keys).toCompleted
 
   /**
     * Drops the index given the keys used to create it.
-    *
     */
-  def dropIndex(keys: Bson, dropIndexOptions: DropIndexOptions): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndex(keys, dropIndexOptions)).fetch
+  def dropIndex(keys: Bson, dropIndexOptions: DropIndexOptions): Task[Completed] =
+    wrapped.dropIndex(keys, dropIndexOptions).toCompleted
 
   /**
     * Drops the given index.
-    *
     */
   def dropIndex(clientSession: ClientSession, indexName: String) =
-    SingleItemSubscription(wrapped.dropIndex(clientSession, indexName)).fetch
+    wrapped.dropIndex(clientSession, indexName).toZIO
 
   /**
     * Drops the given index.
-    *
-    */
-  def dropIndex(clientSession: ClientSession, indexName: String, dropIndexOptions: DropIndexOptions): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndex(clientSession, indexName, dropIndexOptions)).fetch
-
-  /**
-    * Drops the index given the keys used to create it.
-    *
-    */
-  def dropIndex(clientSession: ClientSession, keys: Bson): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndex(clientSession, keys)).fetch
-
-  /**
-    * Drops the index given the keys used to create it.
-    *
     */
   def dropIndex(
-                 clientSession: ClientSession,
-                 keys: Bson,
-                 dropIndexOptions: DropIndexOptions
-               ): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndex(clientSession, keys, dropIndexOptions)).fetch
+      clientSession: ClientSession,
+      indexName: String,
+      dropIndexOptions: DropIndexOptions
+  ): Task[Completed] =
+    wrapped.dropIndex(clientSession, indexName, dropIndexOptions).toCompleted
+
+  /**
+    * Drops the index given the keys used to create it.
+    */
+  def dropIndex(clientSession: ClientSession, keys: Bson): Task[Completed] =
+    wrapped.dropIndex(clientSession, keys).toCompleted
+
+  /**
+    * Drops the index given the keys used to create it.
+    */
+  def dropIndex(
+      clientSession: ClientSession,
+      keys: Bson,
+      dropIndexOptions: DropIndexOptions
+  ): Task[Completed] =
+    wrapped.dropIndex(clientSession, keys, dropIndexOptions).toCompleted
 
   /**
     * Drop all the indexes on this collection, except for the default on _id.
-    *
     */
-  def dropIndexes(): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndexes()).fetch
+  def dropIndexes(): Task[Completed] =
+    wrapped.dropIndexes().toCompleted
 
   /**
     * Drop all the indexes on this collection, except for the default on _id.
-    *
     */
-  def dropIndexes(dropIndexOptions: DropIndexOptions): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndexes(dropIndexOptions)).fetch
+  def dropIndexes(dropIndexOptions: DropIndexOptions): Task[Completed] =
+    wrapped.dropIndexes(dropIndexOptions).toCompleted
 
   /**
     * Drop all the indexes on this collection, except for the default on _id.
-    *
     */
-  def dropIndexes(clientSession: ClientSession): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndexes(clientSession)).fetch
+  def dropIndexes(clientSession: ClientSession): Task[Completed] =
+    wrapped.dropIndexes(clientSession).toCompleted
 
   /**
     * Drop all the indexes on this collection, except for the default on _id.
-    *
     */
-  def dropIndexes(clientSession: ClientSession, dropIndexOptions: DropIndexOptions): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.dropIndexes(clientSession, dropIndexOptions)).fetch
+  def dropIndexes(clientSession: ClientSession, dropIndexOptions: DropIndexOptions): Task[Completed] =
+    wrapped.dropIndexes(clientSession, dropIndexOptions).toCompleted
 
   /**
     * Rename the collection with oldCollectionName to the newCollectionName.
-    *
     */
-  def renameCollection(newCollectionNamespace: MongoNamespace): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.renameCollection(newCollectionNamespace)).fetch
+  def renameCollection(newCollectionNamespace: MongoNamespace): Task[Completed] =
+    wrapped.renameCollection(newCollectionNamespace).toCompleted
 
   /**
     * Rename the collection with oldCollectionName to the newCollectionName.
-    *
     */
-  def renameCollection(newCollectionNamespace: MongoNamespace, options: RenameCollectionOptions): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.renameCollection(newCollectionNamespace, options)).fetch
+  def renameCollection(
+      newCollectionNamespace: MongoNamespace,
+      options: RenameCollectionOptions
+  ): Task[Completed] =
+    wrapped.renameCollection(newCollectionNamespace, options).toCompleted
 
   /**
     * Rename the collection with oldCollectionName to the newCollectionName.
-    *
     */
-  def renameCollection(clientSession: ClientSession, newCollectionNamespace: MongoNamespace): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.renameCollection(clientSession, newCollectionNamespace)).fetch
+  def renameCollection(clientSession: ClientSession, newCollectionNamespace: MongoNamespace): Task[Completed] =
+    wrapped.renameCollection(clientSession, newCollectionNamespace).toCompleted
 
   /**
     * Rename the collection with oldCollectionName to the newCollectionName.
@@ -847,11 +815,11 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
     *   Requires MongoDB 3.6 or greater
     */
   def renameCollection(
-                        clientSession: ClientSession,
-                        newCollectionNamespace: MongoNamespace,
-                        options: RenameCollectionOptions
-                      ): IO[Throwable, Completed] =
-    CompletedSubscription(wrapped.renameCollection(clientSession, newCollectionNamespace, options)).fetch
+      clientSession: ClientSession,
+      newCollectionNamespace: MongoNamespace,
+      options: RenameCollectionOptions
+  ): Task[Completed] =
+    wrapped.renameCollection(clientSession, newCollectionNamespace, options).toCompleted
 
   /**
     * Creates a change stream for this collection.
@@ -864,8 +832,7 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
     * @note
     *   Requires MongoDB 3.6 or greater
     */
-  def watch(): ChangeStreamSubscription[bson.Document] =
-    ChangeStreamSubscription(wrapped.watch())
+  def watch() = wrapped.watch().toZIOStream()
 
   /**
     * Creates a change stream for this collection.
@@ -880,8 +847,7 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
     * @note
     *   Requires MongoDB 3.6 or greater
     */
-  def watch(pipeline: Seq[Bson]): ChangeStreamSubscription[bson.Document] =
-    ChangeStreamSubscription(wrapped.watch(pipeline.asJava))
+  def watch(pipeline: Seq[Bson]) = wrapped.watch(pipeline.asJava).toZIOStream()
 
   /**
     * Creates a change stream for this collection.
@@ -896,8 +862,7 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
     * @note
     *   Requires MongoDB 3.6 or greater
     */
-  def watch(clientSession: ClientSession): ChangeStreamSubscription[bson.Document] =
-    ChangeStreamSubscription(wrapped.watch(clientSession))
+  def watch(clientSession: ClientSession) = wrapped.watch(clientSession).toZIOStream()
 
   /**
     * Creates a change stream for this collection.
@@ -914,7 +879,7 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
     * @note
     *   Requires MongoDB 3.6 or greater
     */
-  def watch(clientSession: ClientSession, pipeline: Seq[Bson]): ChangeStreamSubscription[bson.Document] =
-    ChangeStreamSubscription(wrapped.watch(clientSession, pipeline.asJava))
+  def watch(clientSession: ClientSession, pipeline: Seq[Bson]) =
+    wrapped.watch(clientSession, pipeline.asJava).toZIOStream()
 
 }

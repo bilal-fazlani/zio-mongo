@@ -1,16 +1,16 @@
-package com.bilalfazlani
+// package com.bilalfazlani
 
-protected[bilalfazlani] object DefaultHelper {
+// protected[bilalfazlani] object DefaultHelper {
 
-  sealed class MapTo[A, B]
+//   sealed class MapTo[A, B]
 
-  object MapTo extends LowPriorityDefaultsTo {
+//   object MapTo extends LowPriorityDefaultsTo {
 
-    implicit def default[B]: MapTo[B, B] = new MapTo[B, B]
-  }
+//     implicit def default[B]: MapTo[B, B] = new MapTo[B, B]
+//   }
 
-  trait LowPriorityDefaultsTo {
+//   trait LowPriorityDefaultsTo {
 
-    implicit def overrideDefault[A, B]: MapTo[A, B] = new MapTo[A, B]
-  }
-}
+//     implicit def overrideDefault[A, B]: MapTo[A, B] = new MapTo[A, B]
+//   }
+// }

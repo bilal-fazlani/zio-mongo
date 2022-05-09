@@ -6,10 +6,9 @@ import com.mongodb.{ReadConcern, ReadPreference, WriteConcern}
 import com.mongodb.reactivestreams.client.ClientSession
 import com.bilalfazlani.DefaultHelper.MapTo
 import com.bilalfazlani.result.Completed
-import com.bilalfazlani.subscriptions.{AggregateSubscription, ChangeStreamSubscription, CompletedSubscription, ListCollectionsSubscription, SingleItemSubscription}
 import org.bson
-
-import scala.jdk.CollectionConverters._
+import zio.interop.reactivestreams.*
+import scala.jdk.CollectionConverters.*
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
 import org.mongodb.scala.bson.collection.immutable.Document
@@ -86,154 +85,154 @@ case class MongoZioDatabase(private val javaMongoDatabase: JavaMongoDatabase) {
   /**
     * Executes command in the context of the current database.
     */
-  def runCommand[TResult](command: Bson)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): IO[Throwable, TResult] =
-    SingleItemSubscription(javaMongoDatabase.runCommand[TResult](command, clazz(ct))).fetch
+  def runCommand[TResult](command: Bson)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): Task[TResult] =
+    javaMongoDatabase.runCommand[TResult](command, clazz(ct)).toZIO
 
   /**
     * Executes command in the context of the current database.
     */
-  def runCommand[TResult](command: Bson, readPreference: ReadPreference)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): IO[Throwable, TResult] =
-    SingleItemSubscription(javaMongoDatabase.runCommand(command, readPreference, clazz(ct))).fetch
+  def runCommand[TResult](command: Bson, readPreference: ReadPreference)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): Task[TResult] =
+    javaMongoDatabase.runCommand(command, readPreference, clazz(ct)).toZIO
 
   /**
     * Executes command in the context of the current database.
     */
-  def runCommand[TResult](clientSession: ClientSession, command: Bson)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): IO[Throwable, TResult] =
-    SingleItemSubscription(javaMongoDatabase.runCommand[TResult](clientSession, command, clazz(ct))).fetch
+  def runCommand[TResult](clientSession: ClientSession, command: Bson)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): Task[TResult] =
+    javaMongoDatabase.runCommand[TResult](clientSession, command, clazz(ct)).toZIO
 
   /**
     * Executes command in the context of the current database.
     */
-  def runCommand[TResult](clientSession: ClientSession, command: Bson, readPreference: ReadPreference)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): IO[Throwable, TResult] =
-    SingleItemSubscription(javaMongoDatabase.runCommand(clientSession, command, readPreference, clazz(ct))).fetch
+  def runCommand[TResult](clientSession: ClientSession, command: Bson, readPreference: ReadPreference)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]): Task[TResult] =
+    javaMongoDatabase.runCommand(clientSession, command, readPreference, clazz(ct)).toZIO
 
   /**
     * Drops this database.
     *
     */
-  def drop(): IO[Throwable, Completed] = CompletedSubscription(javaMongoDatabase.drop()).fetch
+  def drop(): Task[Completed] = javaMongoDatabase.drop().toCompleted
 
   /**
     * Drops this database.
     */
-  def drop(clientSession: ClientSession): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.drop(clientSession)).fetch
+  def drop(clientSession: ClientSession): Task[Completed] =
+    javaMongoDatabase.drop(clientSession).toCompleted
 
   /**
     * Gets the names of all the collections in this database.
     */
-  def listCollectionNames(): IO[Throwable, String] = SingleItemSubscription(javaMongoDatabase.listCollectionNames()).fetch
+  def listCollectionNames(): Task[String] = javaMongoDatabase.listCollectionNames().toZIO
 
   /**
     * Finds all the collections in this database.
     *
     */
   def listCollections[TResult]()(implicit e: TResult MapTo Document, ct: ClassTag[TResult]) =
-    ListCollectionsSubscription(javaMongoDatabase.listCollections(clazz(ct))).fetch
+    javaMongoDatabase.listCollections(clazz(ct)).toZIOStream()
 
   /**
     * Gets the names of all the collections in this database.
     *
     */
-  def listCollectionNames(clientSession: ClientSession): IO[Throwable, String] = SingleItemSubscription(javaMongoDatabase.listCollectionNames(clientSession)).fetch
+  def listCollectionNames(clientSession: ClientSession): Task[String] = javaMongoDatabase.listCollectionNames(clientSession).toZIO
 
   /**
     * Finds all the collections in this database.
     *
     */
   def listCollections[TResult](clientSession: ClientSession)(implicit e: TResult MapTo Document, ct: ClassTag[TResult]) =
-    ListCollectionsSubscription(javaMongoDatabase.listCollections(clientSession, clazz(ct))).fetch
+    javaMongoDatabase.listCollections(clientSession, clazz(ct)).toZIOStream()
 
   /**
     * Create a new collection with the given name.
     */
-  def createCollection(collectionName: String): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createCollection(collectionName)).fetch
+  def createCollection(collectionName: String): Task[Completed] =
+    javaMongoDatabase.createCollection(collectionName).toCompleted
 
   /**
     * Create a new collection with the selected options
     *
     */
-  def createCollection(collectionName: String, options: CreateCollectionOptions): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createCollection(collectionName, options)).fetch
+  def createCollection(collectionName: String, options: CreateCollectionOptions): Task[Completed] =
+    javaMongoDatabase.createCollection(collectionName, options).toCompleted
 
   /**
     * Create a new collection with the given name.
     *
     */
-  def createCollection(clientSession: ClientSession, collectionName: String): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createCollection(clientSession, collectionName)).fetch
+  def createCollection(clientSession: ClientSession, collectionName: String): Task[Completed] =
+    javaMongoDatabase.createCollection(clientSession, collectionName).toCompleted
 
   /**
     * Create a new collection with the selected options
     *
     */
-  def createCollection(clientSession: ClientSession, collectionName: String, options: CreateCollectionOptions): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createCollection(clientSession, collectionName, options)).fetch
+  def createCollection(clientSession: ClientSession, collectionName: String, options: CreateCollectionOptions): Task[Completed] =
+    javaMongoDatabase.createCollection(clientSession, collectionName, options).toCompleted
 
   /**
     * Creates a view with the given name, backing collection/view name, and aggregation pipeline that defines the view.
     */
-  def createView(viewName: String, viewOn: String, pipeline: Seq[Bson]): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createView(viewName, viewOn, pipeline.asJava)).fetch
+  def createView(viewName: String, viewOn: String, pipeline: Seq[Bson]): Task[Completed] =
+    javaMongoDatabase.createView(viewName, viewOn, pipeline.asJava).toCompleted
 
   /**
     * Creates a view with the given name, backing collection/view name, aggregation pipeline, and options that defines the view.
     */
-  def createView(viewName: String, viewOn: String, pipeline: Seq[Bson], createViewOptions: CreateViewOptions): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createView(viewName, viewOn, pipeline.asJava, createViewOptions)).fetch
+  def createView(viewName: String, viewOn: String, pipeline: Seq[Bson], createViewOptions: CreateViewOptions): Task[Completed] =
+    javaMongoDatabase.createView(viewName, viewOn, pipeline.asJava, createViewOptions).toCompleted
 
   /**
     * Creates a view with the given name, backing collection/view name, and aggregation pipeline that defines the view.
     */
-  def createView(clientSession: ClientSession, viewName: String, viewOn: String, pipeline: Seq[Bson]): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createView(clientSession, viewName, viewOn, pipeline.asJava)).fetch
+  def createView(clientSession: ClientSession, viewName: String, viewOn: String, pipeline: Seq[Bson]): Task[Completed] =
+    javaMongoDatabase.createView(clientSession, viewName, viewOn, pipeline.asJava).toCompleted
 
   /**
     * Creates a view with the given name, backing collection/view name, aggregation pipeline, and options that defines the view.
     *
     */
-  def createView(clientSession: ClientSession, viewName: String, viewOn: String, pipeline: Seq[Bson], createViewOptions: CreateViewOptions): IO[Throwable, Completed] =
-    CompletedSubscription(javaMongoDatabase.createView(clientSession, viewName, viewOn, pipeline.asJava, createViewOptions)).fetch
+  def createView(clientSession: ClientSession, viewName: String, viewOn: String, pipeline: Seq[Bson], createViewOptions: CreateViewOptions): Task[Completed] =
+    javaMongoDatabase.createView(clientSession, viewName, viewOn, pipeline.asJava, createViewOptions).toCompleted
 
   /**
     * Creates a change stream for this collection.
     */
   def watch() =
-    ChangeStreamSubscription(javaMongoDatabase.watch()).fetch
+    javaMongoDatabase.watch().toZIOStream()
 
   /**
     * Creates a change stream for this collection.
     *
     */
   def watch(pipeline: Seq[Bson]) =
-    ChangeStreamSubscription(javaMongoDatabase.watch(pipeline.asJava)).fetch
+    javaMongoDatabase.watch(pipeline.asJava).toZIOStream()
 
   /**
     * Creates a change stream for this collection.
     *
     */
   def watch(clientSession: ClientSession) =
-    ChangeStreamSubscription(javaMongoDatabase.watch(clientSession)).fetch
+    javaMongoDatabase.watch(clientSession).toZIOStream()
 
   /**
     * Creates a change stream for this collection.
     *
     */
   def watch(clientSession: ClientSession, pipeline: Seq[Bson]) =
-    ChangeStreamSubscription(javaMongoDatabase.watch(clientSession, pipeline.asJava)).fetch
+    javaMongoDatabase.watch(clientSession, pipeline.asJava).toZIOStream()
 
   /**
     * Aggregates documents according to the specified aggregation pipeline.
     *
     */
   def aggregate[C](pipeline: Seq[Bson])(ct: ClassTag[C]) =
-    AggregateSubscription(javaMongoDatabase.aggregate[C](pipeline.asJava,  ct.runtimeClass.asInstanceOf[Class[C]])).fetch
+    javaMongoDatabase.aggregate[C](pipeline.asJava,  ct.runtimeClass.asInstanceOf[Class[C]]).toZIOStream()
 
   /**
     * Aggregates documents according to the specified aggregation pipeline.
     *
     */
   def aggregate[C](clientSession: ClientSession, pipeline: Seq[Bson])(ct: ClassTag[C]) =
-    AggregateSubscription(javaMongoDatabase.aggregate(clientSession, pipeline.asJava, ct.runtimeClass.asInstanceOf[Class[C]])).fetch
+    javaMongoDatabase.aggregate(clientSession, pipeline.asJava, ct.runtimeClass.asInstanceOf[Class[C]]).toZIOStream()
 }

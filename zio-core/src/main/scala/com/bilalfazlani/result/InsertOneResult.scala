@@ -17,7 +17,7 @@ case class InsertOneResult(private val wrapper: JInsertOneResult) {
     *
     * @return true if the write was acknowledged
     */
-  def wasAcknowledged(): Boolean = wrapper.wasAcknowledged()
+  val wasAcknowledged: Boolean = wrapper.wasAcknowledged()
 
   /**
     * If the _id of the inserted document if available, otherwise null
@@ -26,6 +26,6 @@ case class InsertOneResult(private val wrapper: JInsertOneResult) {
     *
     * @return if _id of the inserted document if available, otherwise None
     */
-  def getInsertedId: Option[BsonValue] = Option(wrapper.getInsertedId)
+  val insertedId: Option[BsonValue] = Option(wrapper.getInsertedId)
 }
 

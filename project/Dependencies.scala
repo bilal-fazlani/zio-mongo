@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   lazy val mongoVersion     = "4.6.0"
-  lazy val zioVersion       = "2.0.0-RC5"
+  lazy val zioVersion       = "2.0.0-RC6"
   lazy val scalaTestVersion = "3.2.12"
   lazy val scalaMockVersion = "4.3.0"
   lazy val logbackVersion   = "1.1.3"
@@ -13,7 +13,7 @@ object Dependencies {
     "org.mongodb" % "mongodb-driver-reactivestreams" % mongoVersion
   lazy val zio             = "dev.zio"       %% "zio"                         % zioVersion
   lazy val zioStreams      = "dev.zio"       %% "zio-streams"                 % zioVersion
-  lazy val zstreamInterops = "dev.zio"       %% "zio-interop-reactivestreams" % "2.0.0-RC6"
+  lazy val zstreamInterops = "dev.zio"       %% "zio-interop-reactivestreams" % "2.0.0-RC7"
   lazy val logback         = "ch.qos.logback" % "logback-classic"             % logbackVersion % Test
 
   //Test

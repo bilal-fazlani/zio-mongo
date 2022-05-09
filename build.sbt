@@ -1,3 +1,4 @@
+import scala.util.Try
 import Dependencies._
 
 ThisBuild / scalaVersion     := "3.1.2"
@@ -58,6 +59,13 @@ lazy val tests: Project = (project in file("tests"))
     Test / parallelExecution := false
   )
   .dependsOn(zioCore, ziomongoCirce)
+
+lazy val isCI = {
+  val isCIStr = sys.env.get("CI")
+  def toBool(str:String) = Try(str.toBoolean).toOption
+  val isCI = isCIStr.flatMap(toBool)
+  isCI.getOrElse(false)
+}
 
 lazy val examples = (project in file("zio-examples"))
   .settings(

@@ -32,10 +32,48 @@ given Decoder[LocalDate] =
     Try(LocalDate.parse(dateObj("$date").flatMap(_.asString).map(_.slice(0, 10)).get))
   )
 
-given circeCodecProvider[T: Encoder: Decoder: ClassTag]: MongoCodecProvider[T] =
-  new MongoCodecProvider[T] {
-    implicit val classT: Class[T]   = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
-    override def get: CodecProvider = circeBasedCodecProvider[T]
+// given circeCodecProvider[T: Encoder: Decoder: ClassTag]: MongoCodecProvider[T] =
+//   new MongoCodecProvider[T] {
+//     implicit val classT: Class[T]   = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
+//     override def get: CodecProvider = circeBasedCodecProvider[T]
+//   }
+
+given jCodec[T: Encoder: Decoder: ClassTag](using registry: CodecRegistry): Codec[T] = {
+  given Class[T]        = summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
+  given Codec[Document] = new DocumentCodec(registry).asInstanceOf[Codec[Document]]
+  generateJCodec[T]
+}
+
+private def generateJCodec[T](using
+    enc: Encoder[T],
+    dec: Decoder[T],
+    classT: Class[T],
+    documentCodec: Codec[Document]
+): Codec[T] =
+  new Codec[T] {
+    private val stringCodec: Codec[String] = new StringCodec()
+    override def encode(writer: BsonWriter, t: T, encoderContext: EncoderContext): Unit = {
+      println("******* encode ************: " + t)
+      val json = enc(t)
+      if (json.isObject) {
+        val document = Document.parse(json.noSpaces)
+        documentCodec.encode(writer, document, encoderContext)
+      } else {
+        stringCodec.encode(writer, json.noSpaces.replaceAll("\"", ""), encoderContext)
+      }
+    }
+    override def getEncoderClass: Class[T] = classT
+    override def decode(reader: BsonReader, decoderContext: DecoderContext): T =
+      reader.getCurrentBsonType match {
+        case BsonType.DOCUMENT =>
+          val json = documentCodec.decode(reader, decoderContext).toJson()
+          circeDecode[T](json).fold(e => throw MongoJsonParsingException(json, e.getMessage), identity)
+        case _ =>
+          val string = stringCodec.decode(reader, decoderContext)
+          dec
+            .decodeJson(Json.fromString(string))
+            .fold(e => throw MongoJsonParsingException(string, e.getMessage), identity)
+      }
   }
 
 private def circeBasedCodecProvider[T](implicit enc: Encoder[T], dec: Decoder[T], classT: Class[T]): CodecProvider =
