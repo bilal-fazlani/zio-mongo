@@ -172,7 +172,7 @@ case class MongoZioCollection[T](private val wrapped: JavaMongoCollection[T]) {
   /**
     * Finds all documents in the collection.
     */
-  def find(using ct: ClassTag[T]): ZStream[Any, Throwable, T] =
+  def find()(using ct: ClassTag[T]): ZStream[Any, Throwable, T] =
     wrapped.find(clazz(ct)).toZIOStream()
 
   /**

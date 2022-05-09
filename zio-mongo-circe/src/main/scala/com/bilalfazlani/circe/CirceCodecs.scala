@@ -17,6 +17,7 @@ import org.bson.codecs.EncoderContext
 import org.bson.codecs.StringCodec
 import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistry
+import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.bson.types.ObjectId
 
 import java.time.Instant
@@ -43,9 +44,9 @@ given Decoder[LocalDate] =
     Try(LocalDate.parse(dateObj("$date").flatMap(_.asString).map(_.slice(0, 10)).get))
   )
 
-given jCodec[T: Encoder: Decoder: ClassTag](using registry: CodecRegistry): Codec[T] = {
+given jCodec[T: Encoder: Decoder: ClassTag]: Codec[T] = {
   given Class[T]        = summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
-  given Codec[Document] = new DocumentCodec(registry).asInstanceOf[Codec[Document]]
+  given Codec[Document] = new DocumentCodec(DEFAULT_CODEC_REGISTRY).asInstanceOf[Codec[Document]]
   generateJCodec[T]
 }
 

@@ -21,13 +21,10 @@ libraryDependencies += "com.bilal-fazlani" %% "zio-mongo-circe" % "<VERSION>"
 ### Documentation
 
 ```scala
+import com.bilalfazlani.zioMongo.*
 import com.bilalfazlani.zioMongo.circe.given
 import io.circe.generic.auto.*
-import io.circe.syntax.*
-import org.bson.codecs.configuration.CodecRegistries.*
-import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
-import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Updates.set
@@ -51,24 +48,16 @@ object CaseClassExample extends zio.ZIOAppDefault {
     Person(ObjectId(), "Zaphod", "Beeblebrox", 15)
   )
 
-  given CodecRegistry = DEFAULT_CODEC_REGISTRY
-
-  val customRegistry: CodecRegistry = fromCodecs(JCodec[Person])
-
-  val codecRegistry = fromRegistries(DEFAULT_CODEC_REGISTRY, customRegistry)
-
   override def run = for {
     client   <- MongoZioClient("mongodb://localhost:27017")
-    database <- client.getDatabase("mydb").map(_.withCodecRegistry(codecRegistry))
+    database <- client.getDatabase("mydb", JCodec[Person])
     col      <- database.getCollection[Person]("test")
     person     = Person(ObjectId(), "bilal", "f", 1)
-    personJson = person.asJson
     insertR <- col.insertOne(person)
-    first   <- col.find.runHead
+    first   <- col.find().runHead
     _       <- zio.Console.printLine(first)
     _       <- col.insertMany(persons)
     _       <- zio.Console.printLine("5.....")
-    _       <- col.find.runHead
     _       <- col.find(equal("name", "Ida")).runHead
     _       <- col.updateOne(equal("name", "Jean"), set("lastName", "Bannour"))
     _       <- col.deleteOne(equal("name", "Zaphod"))

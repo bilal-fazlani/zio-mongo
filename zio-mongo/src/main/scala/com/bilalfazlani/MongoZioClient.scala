@@ -6,9 +6,10 @@ import com.mongodb.MongoClientSettings
 import com.mongodb.MongoDriverInformation
 import com.mongodb.reactivestreams.client.ClientSession
 import com.mongodb.reactivestreams.client.MongoClients
-import org.bson.codecs.configuration.CodecRegistries.fromRegistries
+import org.bson.codecs.configuration.CodecRegistries.*
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.conversions.Bson
+import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.collection.immutable.Document
 import zio.IO
 import zio.Task
@@ -18,6 +19,7 @@ import zio.interop.reactivestreams.*
 import java.io.Closeable
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
+import org.bson.codecs.Codec
 
 case class MongoZioClient(private val wrapped: JavaMongoClient) extends Closeable {
 
@@ -36,7 +38,9 @@ case class MongoZioClient(private val wrapped: JavaMongoClient) extends Closeabl
   /**
     * Gets the database with the given name.
     */
-  def getDatabase(name: String): Task[MongoZioDatabase] = ZIO.attempt(MongoZioDatabase(wrapped.getDatabase(name)))
+  def getDatabase(name: String, codecs: Codec[?]*): Task[MongoZioDatabase] =
+    val registry = fromRegistries(DEFAULT_CODEC_REGISTRY, fromCodecs(codecs*))
+    ZIO.attempt(MongoZioDatabase(wrapped.getDatabase(name).withCodecRegistry(registry)))
 
   /**
     * Close the client, which will close all underlying cached resources, including, for example, sockets and background
