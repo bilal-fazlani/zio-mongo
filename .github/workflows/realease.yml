@@ -1,14 +1,14 @@
 name: Release
 on:
   push:
-    # branches: [main]
-    # paths-ignore:
-    #   - 'docs/**'
-    #   - README.md
-    #   - 'mkdocs.yml'
-    #   - Pipfile
-    #   - 'netlify.toml'
-    #   - '.github/workflows/scala-steward.yml'
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - README.md
+      - 'mkdocs.yml'
+      - Pipfile
+      - 'netlify.toml'
+      - '.github/workflows/scala-steward.yml'
     tags: ["*"]
 jobs:
   publish:
