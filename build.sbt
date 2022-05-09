@@ -6,12 +6,16 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.bilalfazlani"
 ThisBuild / organizationName := "Bilal Fazlani"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
-// ThisBuild / description := "ZIO wrapper for MongoDB Reactive Streams Java Driver"
 ThisBuild / scmInfo := Some(
   ScmInfo(url("https://github.com/bilal-fazlani/zio-mongo"), "https://github.com/bilal-fazlani/zio-mongo.git")
 )
 ThisBuild / developers := List(
-  Developer("", "bilal-fazlani", "bilal.m.fazlani@gmail.com", url("https://github.com/bilal-fazlani"))
+  Developer(
+        "bilal-fazlani",
+        "Bilal Fazlani",
+        "bilal.m.fazlani@gmail.com",
+        url("https://bilal-fazlani.com")
+      )
 )
 ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 ThisBuild / homepage := Some(url("https://github.com/bilal-fazlani/zio-mongo"))
