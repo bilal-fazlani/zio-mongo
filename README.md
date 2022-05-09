@@ -1,6 +1,6 @@
 # ZIO-MONGO
 
-ZIO wrapper for MongoDB Reactive Streams Java Driver.
+ZIO wrapper for [MongoDB Java Reactive Streams](https://www.mongodb.com/docs/drivers/reactive-streams/)
 
 >With support for circe
 
