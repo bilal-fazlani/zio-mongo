@@ -29,7 +29,6 @@ import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Updates.set
 import zio.*
-import zio.stream.ZSink
 
 case class Person(_id: ObjectId, name: String, lastName: String, age: Int)
 
