@@ -6,7 +6,7 @@ ZIO wrapper for [MongoDB Java Reactive Streams](https://www.mongodb.com/docs/dri
 
 ### Dependencies
 
-Supports scala 3 only
+Supports Scala 3 and ZIO 2.0.0
 
 ```scala
 libraryDependencies += "com.bilal-fazlani" %% "zio-mongo" % "<VERSION>"
