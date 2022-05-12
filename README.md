@@ -1,5 +1,7 @@
 # ZIO-MONGO
 
+![Maven Central](https://img.shields.io/maven-central/v/com.bilal-fazlani/zio-mongo_3?color=green&label=Latest%20Version&style=for-the-badge)
+
 ZIO wrapper for [MongoDB Java Reactive Streams](https://www.mongodb.com/docs/drivers/reactive-streams/)
 
 >With support for circe
