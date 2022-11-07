@@ -30,7 +30,7 @@ case class MongoJsonParsingException(jsonString: String, message: String) extend
 given Encoder[ObjectId] =
   Encoder.encodeJsonObject.contramap[ObjectId](i => JsonObject("$oid" -> Json.fromString(i.toHexString)))
 given Decoder[ObjectId] =
-  Decoder.decodeJsonObject.emapTry(id => Try(ObjectId(id("$oid").flatMap(_.asString).get)))
+  Decoder.decodeJsonObject.emapTry(o => Try(ObjectId(o("$oid").flatMap(_.asString).get)))
 
 given Encoder[Instant] =
   Encoder.encodeJsonObject.contramap[Instant](i => JsonObject("$date" -> Json.fromString(i.toString)))

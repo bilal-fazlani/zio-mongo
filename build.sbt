@@ -23,7 +23,7 @@ lazy val zioMongoRoot = (project in file("."))
   .settings(
     publish / skip := true
   )
-  .aggregate(zioMongo, zioMongoCirce, examples, tests)
+  .aggregate(zioMongo, zioMongoCirce, zioJsonMongo, circeExamples, zioJsonExamples, tests)
 
 lazy val zioMongo: Project = (project in file("zio-mongo"))
   .settings(
@@ -49,6 +49,16 @@ lazy val zioMongoCirce: Project = (project in file("zio-mongo-circe"))
   )
   .dependsOn(zioMongo)
 
+lazy val zioJsonMongo: Project = (project in file("zio-json-mongo"))
+  .settings(
+    description := "ZIO Json codecs for zio-mongo",
+    name        := "zio-json-mongo",
+    libraryDependencies ++= Seq(
+      ZioJson.zioJson
+    )
+  )
+  .dependsOn(zioMongo)
+
 lazy val tests: Project = (project in file("tests"))
   .settings(
     name           := "tests",
@@ -65,7 +75,7 @@ lazy val tests: Project = (project in file("tests"))
   )
   .dependsOn(zioMongo, zioMongoCirce)
 
-lazy val examples = (project in file("zio-mongo-circe-examples"))
+lazy val circeExamples = (project in file("zio-mongo-circe-examples"))
   .settings(
     publish / skip := true,
     libraryDependencies ++= Seq(
@@ -73,3 +83,12 @@ lazy val examples = (project in file("zio-mongo-circe-examples"))
     )
   )
   .dependsOn(zioMongo, zioMongoCirce)
+
+lazy val zioJsonExamples = (project in file("zio-json-mongo-examples"))
+  .settings(
+    publish / skip := true,
+    libraryDependencies ++= Seq(
+      ZioJson.zioJson
+    )
+  )
+  .dependsOn(zioMongo, zioJsonMongo)

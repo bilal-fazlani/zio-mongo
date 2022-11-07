@@ -29,3 +29,8 @@ object Circe {
   lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
   lazy val circeParser  = "io.circe" %% "circe-parser"  % circeVersion
 }
+
+object ZioJson {
+  val zioJsonVersion = "0.3.0"
+  lazy val zioJson = "dev.zio" %% "zio-json" % zioJsonVersion
+}
