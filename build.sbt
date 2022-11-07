@@ -18,8 +18,9 @@ ThisBuild / developers := List(
 ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 ThisBuild / homepage := Some(url("https://github.com/bilal-fazlani/zio-mongo"))
 
-lazy val zioMongoRoot = (project in file("."))
+lazy val `root` = (project in file("."))
   .settings(
+    name                := "root",
     publish / skip      := true,
     sonatypeProfileName := "com.bilal-fazlani"
   )

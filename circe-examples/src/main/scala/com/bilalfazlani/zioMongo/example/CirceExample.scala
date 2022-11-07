@@ -1,7 +1,7 @@
-package com.bilalfazlani.zioMongoExample
+package com.bilalfazlani.zioMongo
+package example
 
-import com.bilalfazlani.zioMongo.*
-import com.bilalfazlani.zioMongo.circe.given
+import circe.given
 import io.circe.generic.auto.*
 import org.bson.types.ObjectId
 import org.mongodb.scala.bson.ObjectId
@@ -11,9 +11,7 @@ import zio.*
 import zio.Console.*
 import zio.stream.ZSink
 
-case class Person(_id: ObjectId, name: String, lastName: String, age: Int)
-
-object Main extends ZIOAppDefault {
+object CirceExample extends ZIOAppDefault {
 
   val persons: Seq[Person] = Seq(
     Person(ObjectId(), "Charles", "Babbage", 34),
