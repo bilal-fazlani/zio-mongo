@@ -20,7 +20,8 @@ ThisBuild / homepage := Some(url("https://github.com/bilal-fazlani/zio-mongo"))
 
 lazy val zioMongoRoot = (project in file("."))
   .settings(
-    publish / skip := true
+    publish / skip      := true,
+    sonatypeProfileName := "com.bilal-fazlani"
   )
   .aggregate(
     `zio-mongo`,
