@@ -2,18 +2,18 @@ import sbt._
 
 object Dependencies {
 
-  lazy val mongoVersion     = "4.6.1"
-  lazy val zioVersion       = "2.0.0"
-  lazy val scalaTestVersion = "3.2.12"
+  lazy val mongoVersion     = "4.7.2"
+  lazy val zioVersion       = "2.0.3"
+  lazy val scalaTestVersion = "3.2.14"
   lazy val scalaMockVersion = "4.3.0"
-  lazy val logbackVersion   = "1.1.3"
+  lazy val logbackVersion   = "1.4.4"
 
   lazy val mongoScala = ("org.mongodb.scala" %% "mongo-scala-driver" % mongoVersion).cross(CrossVersion.for3Use2_13)
   lazy val mongodbDriverStreams =
     "org.mongodb" % "mongodb-driver-reactivestreams" % mongoVersion
   lazy val zio             = "dev.zio"       %% "zio"                         % zioVersion
   lazy val zioStreams      = "dev.zio"       %% "zio-streams"                 % zioVersion
-  lazy val zstreamInterops = "dev.zio"       %% "zio-interop-reactivestreams" % "2.0.0-RC7"
+  lazy val zstreamInterops = "dev.zio"       %% "zio-interop-reactivestreams" % "2.0.0"
   lazy val logback         = "ch.qos.logback" % "logback-classic"             % logbackVersion % Test
 
   //Test

@@ -1,7 +1,7 @@
 import scala.util.Try
 import Dependencies._
 
-ThisBuild / scalaVersion := "3.2.0-RC1"
+ThisBuild / scalaVersion     := "3.2.0"
 ThisBuild / organization     := "com.bilal-fazlani"
 ThisBuild / organizationName := "Bilal Fazlani"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")

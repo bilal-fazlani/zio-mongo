@@ -8,11 +8,12 @@ import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Updates.set
 import zio.*
+import zio.Console.*
 import zio.stream.ZSink
 
 case class Person(_id: ObjectId, name: String, lastName: String, age: Int)
 
-object CaseClassExample extends zio.ZIOAppDefault {
+object Main extends ZIOAppDefault {
 
   val persons: Seq[Person] = Seq(
     Person(ObjectId(), "Charles", "Babbage", 34),
@@ -31,18 +32,18 @@ object CaseClassExample extends zio.ZIOAppDefault {
     client   <- MongoZioClient("mongodb://localhost:27017")
     database <- client.getDatabase("mydb", JCodec[Person])
     col      <- database.getCollection[Person]("test")
-    person     = Person(ObjectId(), "bilal", "f", 1)
+    person = Person(ObjectId(), "bilal", "f", 1)
     insertR <- col.insertOne(person)
     first   <- col.find().runHead
-    _       <- zio.Console.printLine(first)
+    _       <- printLine(first)
     _       <- col.insertMany(persons)
-    _       <- zio.Console.printLine("5.....")
+    _       <- printLine("5.....")
     _       <- col.find(equal("name", "Ida")).runHead
     _       <- col.updateOne(equal("name", "Jean"), set("lastName", "Bannour"))
     _       <- col.deleteOne(equal("name", "Zaphod"))
     count   <- col.countDocuments()
     person  <- col.find(equal("name", "Jean")).runHead
-    _       <- zio.Console.printLine(s"Persons count: $count")
-    _       <- zio.Console.printLine(s"The updated person with name Jean is: $person")
+    _       <- printLine(s"Persons count: $count")
+    _       <- printLine(s"The updated person with name Jean is: $person")
   } yield ()
 }
