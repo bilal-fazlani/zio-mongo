@@ -13,6 +13,7 @@ object Dependencies {
     "org.mongodb" % "mongodb-driver-reactivestreams" % mongoVersion
   lazy val zio        = "dev.zio"       %% "zio"             % zioVersion
   lazy val zioStreams = "dev.zio"       %% "zio-streams"     % zioVersion
+  lazy val zstreamInterops = "dev.zio"       %% "zio-interop-reactivestreams" % "2.0.0"
   lazy val logback    = "ch.qos.logback" % "logback-classic" % logbackVersion % Test
 
   //Test

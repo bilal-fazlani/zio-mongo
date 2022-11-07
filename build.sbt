@@ -37,7 +37,6 @@ lazy val `zio-mongo`: Project = (project in file("zio-mongo"))
   .settings(
     description         := "ZIO wrapper for MongoDB Reactive Streams Java Driver",
     name                := "zio-mongo",
-    sonatypeProfileName := "com.bilal-fazlani",
     libraryDependencies ++= Seq(
       mongoScala,
       mongodbDriverStreams,
@@ -50,9 +49,8 @@ lazy val `zio-mongo`: Project = (project in file("zio-mongo"))
 
 lazy val `circe-codec`: Project = (project in file("circe-codec"))
   .settings(
-    description         := "Circe codecs for zio-mongo",
-    name                := "circe-codec",
-    sonatypeProfileName := "com.bilal-fazlani",
+    description := "Circe codecs for zio-mongo",
+    name        := "circe-codec",
     libraryDependencies ++= Seq(
       Circe.circeParser
     )
@@ -61,9 +59,8 @@ lazy val `circe-codec`: Project = (project in file("circe-codec"))
 
 lazy val `zio-json-codec`: Project = (project in file("zio-json-codec"))
   .settings(
-    description         := "ZIO Json codecs for zio-mongo",
-    name                := "zio-json-codec",
-    sonatypeProfileName := "com.bilal-fazlani",
+    description := "ZIO Json codecs for zio-mongo",
+    name        := "zio-json-codec",
     libraryDependencies ++= Seq(
       ZioJson.zioJson
     )
