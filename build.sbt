@@ -1,9 +1,8 @@
 import Dependencies._
 
-ThisBuild / scalaVersion        := "3.2.0"
-ThisBuild / organization        := "com.bilal-fazlani.zio-mongo"
-ThisBuild / sonatypeProfileName := "com.bilal-fazlani"
-ThisBuild / organizationName    := "Bilal Fazlani"
+ThisBuild / scalaVersion     := "3.2.0"
+ThisBuild / organization     := "com.bilal-fazlani.zio-mongo"
+ThisBuild / organizationName := "Bilal Fazlani"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 ThisBuild / scmInfo := Some(
   ScmInfo(url("https://github.com/bilal-fazlani/zio-mongo"), "https://github.com/bilal-fazlani/zio-mongo.git")
@@ -34,8 +33,9 @@ lazy val zioMongoRoot = (project in file("."))
 
 lazy val `zio-mongo`: Project = (project in file("zio-mongo"))
   .settings(
-    description := "ZIO wrapper for MongoDB Reactive Streams Java Driver",
-    name        := "zio-mongo",
+    description         := "ZIO wrapper for MongoDB Reactive Streams Java Driver",
+    name                := "zio-mongo",
+    sonatypeProfileName := "com.bilal-fazlani",
     libraryDependencies ++= Seq(
       mongoScala,
       mongodbDriverStreams,
@@ -48,8 +48,9 @@ lazy val `zio-mongo`: Project = (project in file("zio-mongo"))
 
 lazy val `circe-codec`: Project = (project in file("circe-codec"))
   .settings(
-    description := "Circe codecs for zio-mongo",
-    name        := "circe-codec",
+    description         := "Circe codecs for zio-mongo",
+    name                := "circe-codec",
+    sonatypeProfileName := "com.bilal-fazlani",
     libraryDependencies ++= Seq(
       Circe.circeParser
     )
@@ -58,8 +59,9 @@ lazy val `circe-codec`: Project = (project in file("circe-codec"))
 
 lazy val `zio-json-codec`: Project = (project in file("zio-json-codec"))
   .settings(
-    description := "ZIO Json codecs for zio-mongo",
-    name        := "zio-json-codec",
+    description         := "ZIO Json codecs for zio-mongo",
+    name                := "zio-json-codec",
+    sonatypeProfileName := "com.bilal-fazlani",
     libraryDependencies ++= Seq(
       ZioJson.zioJson
     )
