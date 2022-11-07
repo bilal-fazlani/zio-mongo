@@ -4,27 +4,33 @@
 
 ZIO wrapper for [MongoDB Java Reactive Streams](https://www.mongodb.com/docs/drivers/reactive-streams/)
 
->With support for circe
+>With support for ZIO JSON and Circe codecs
 
 ### Dependencies
 
-Supports Scala 3 and ZIO 2.0.0
+Supports Scala 3 and ZIO 2
 
 ```scala
-libraryDependencies += "com.bilal-fazlani" %% "zio-mongo" % "<VERSION>"
+libraryDependencies += "com.bilal-fazlani.zio-mongo" %% "zio-mongo" % "<VERSION>"
+```
+
+for zio-json codecs
+
+```scala
+libraryDependencies += "com.bilal-fazlani.zio-mongo" %% "zio-json-codec" % "<VERSION>"
 ```
 
 for circe codecs
 
 ```scala
-libraryDependencies += "com.bilal-fazlani" %% "zio-mongo-circe" % "<VERSION>"
+libraryDependencies += "com.bilal-fazlani.zio-mongo" %% "circe-codec" % "<VERSION>"
 ```
 
 ### Documentation
 
 ```scala
 import com.bilalfazlani.zioMongo.*
-import com.bilalfazlani.zioMongo.circe.given
+import com.bilalfazlani.zioMongo.codecs.circe.given
 import io.circe.generic.auto.*
 import org.bson.types.ObjectId
 import org.mongodb.scala.bson.ObjectId
@@ -34,7 +40,7 @@ import zio.*
 
 case class Person(_id: ObjectId, name: String, lastName: String, age: Int)
 
-object CaseClassExample extends zio.ZIOAppDefault {
+object CaseClassExample extends ZIOAppDefault {
 
   val persons: Seq[Person] = Seq(
     Person(ObjectId(), "Charles", "Babbage", 34),

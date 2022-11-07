@@ -1,8 +1,9 @@
 import Dependencies._
 
-ThisBuild / scalaVersion     := "3.2.0"
-ThisBuild / organization     := "com.bilal-fazlani.zio-mongo"
-ThisBuild / organizationName := "Bilal Fazlani"
+ThisBuild / scalaVersion        := "3.2.0"
+ThisBuild / organization        := "com.bilal-fazlani.zio-mongo"
+ThisBuild / sonatypeProfileName := "com.bilal-fazlani"
+ThisBuild / organizationName    := "Bilal Fazlani"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 ThisBuild / scmInfo := Some(
   ScmInfo(url("https://github.com/bilal-fazlani/zio-mongo"), "https://github.com/bilal-fazlani/zio-mongo.git")
