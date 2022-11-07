@@ -1,22 +1,14 @@
-package com.bilalfazlani.zioMongoExample
+package com.bilalfazlani.zioMongo
+package example
 
-import com.bilalfazlani.zioMongo.*
-import com.bilalfazlani.zioMongo.zioJson.given
+import codecs.zioJson.given
 import org.bson.types.ObjectId
-import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Updates.set
-import zio.*
-import zio.Console.*
-import zio.stream.ZSink
-import zio.json.JsonCodec
-import zio.json.DeriveJsonCodec
+import zio.Console.printLine
+import zio.ZIOAppDefault
 
-case class Person(_id: ObjectId, name: String, lastName: String, age: Int)
-
-object Main extends ZIOAppDefault {
-
-  given JsonCodec[Person] = DeriveJsonCodec.gen
+object ZIOJsonExample extends ZIOAppDefault {
 
   val persons: Seq[Person] = Seq(
     Person(ObjectId(), "Charles", "Babbage", 34),

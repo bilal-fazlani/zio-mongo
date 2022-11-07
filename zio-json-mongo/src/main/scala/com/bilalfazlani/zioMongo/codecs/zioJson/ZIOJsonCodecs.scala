@@ -1,28 +1,19 @@
-package com.bilalfazlani.zioMongo.zioJson
+package com.bilalfazlani.zioMongo
+package codecs.zioJson
 
 import com.mongodb.MongoClientException
-import org.bson.BsonReader
-import org.bson.BsonType
-import org.bson.BsonWriter
-import org.bson.Document
-import org.bson.codecs.Codec
-import org.bson.codecs.DecoderContext
-import org.bson.codecs.DocumentCodec
-import org.bson.codecs.EncoderContext
-import org.bson.codecs.StringCodec
-import org.bson.codecs.configuration.CodecProvider
-import org.bson.codecs.configuration.CodecRegistry
-import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
+import org.bson.codecs.*
+import org.bson.codecs.configuration.{CodecProvider, CodecRegistry}
+import org.bson.json.JsonObject
 import org.bson.types.ObjectId
-import zio.json.{ JsonDecoder, JsonEncoder }
+import org.bson.{BsonReader, BsonType, BsonWriter, Document}
+import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
+import zio.json.ast.{Json, JsonCursor}
+import zio.json.{JsonDecoder, JsonEncoder}
 
-import java.time.Instant
-import java.time.LocalDate
+import java.time.{Instant, LocalDate}
 import scala.reflect.ClassTag
 import scala.util.Try
-import zio.json.ast.Json
-import org.bson.json.JsonObject
-import zio.json.ast.JsonCursor
 
 case class MongoJsonParsingException(jsonString: String, message: String) extends MongoClientException(message)
 

@@ -1,6 +1,6 @@
 package com.bilalfazlani.zioMongo
 
-import com.bilalfazlani.zioMongo.result.Completed
+import result.Completed
 import com.mongodb.ReadConcern
 import com.mongodb.ReadPreference
 import com.mongodb.WriteConcern
@@ -19,8 +19,6 @@ import zio.interop.reactivestreams.*
 
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
-
-import result.*
 
 case class MongoZioDatabase(private val javaMongoDatabase: JavaMongoDatabase) {
 

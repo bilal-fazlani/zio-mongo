@@ -1,10 +1,6 @@
 package com.bilalfazlani.zioMongo
 
-import com.bilalfazlani.zioMongo.result.Completed
-import com.bilalfazlani.zioMongo.result.DeleteResult
-import com.bilalfazlani.zioMongo.result.InsertManyResult
-import com.bilalfazlani.zioMongo.result.InsertOneResult
-import com.bilalfazlani.zioMongo.result.UpdateResult
+import result.*
 import com.mongodb.MongoNamespace
 import com.mongodb.ReadConcern
 import com.mongodb.ReadPreference
