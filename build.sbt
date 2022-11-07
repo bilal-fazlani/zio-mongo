@@ -1,8 +1,7 @@
-import scala.util.Try
 import Dependencies._
 
 ThisBuild / scalaVersion     := "3.2.0"
-ThisBuild / organization     := "com.bilal-fazlani"
+ThisBuild / organization     := "com.bilal-fazlani.zio-mongo"
 ThisBuild / organizationName := "Bilal Fazlani"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 ThisBuild / scmInfo := Some(
@@ -23,9 +22,16 @@ lazy val zioMongoRoot = (project in file("."))
   .settings(
     publish / skip := true
   )
-  .aggregate(zioMongo, zioMongoCirce, zioJsonMongo, circeExamples, zioJsonExamples, tests)
+  .aggregate(
+    `zio-mongo`,
+    `circe-codec`,
+    `circe-examples`,
+    `zio-json-codec`,
+    `zio-json-examples`,
+    tests
+  )
 
-lazy val zioMongo: Project = (project in file("zio-mongo"))
+lazy val `zio-mongo`: Project = (project in file("zio-mongo"))
   .settings(
     description := "ZIO wrapper for MongoDB Reactive Streams Java Driver",
     name        := "zio-mongo",
@@ -39,25 +45,25 @@ lazy val zioMongo: Project = (project in file("zio-mongo"))
     )
   )
 
-lazy val zioMongoCirce: Project = (project in file("zio-mongo-circe"))
+lazy val `circe-codec`: Project = (project in file("circe-codec"))
   .settings(
     description := "Circe codecs for zio-mongo",
-    name        := "zio-mongo-circe",
+    name        := "circe-codec",
     libraryDependencies ++= Seq(
       Circe.circeParser
     )
   )
-  .dependsOn(zioMongo)
+  .dependsOn(`zio-mongo`)
 
-lazy val zioJsonMongo: Project = (project in file("zio-json-mongo"))
+lazy val `zio-json-codec`: Project = (project in file("zio-json-codec"))
   .settings(
     description := "ZIO Json codecs for zio-mongo",
-    name        := "zio-json-mongo",
+    name        := "zio-json-codec",
     libraryDependencies ++= Seq(
       ZioJson.zioJson
     )
   )
-  .dependsOn(zioMongo)
+  .dependsOn(`zio-mongo`)
 
 lazy val tests: Project = (project in file("tests"))
   .settings(
@@ -73,22 +79,22 @@ lazy val tests: Project = (project in file("tests"))
     Test / testOptions ++= Seq(Tests.Setup(() => MongoEmbedded.start), Tests.Cleanup(() => MongoEmbedded.stop)),
     Test / parallelExecution := false
   )
-  .dependsOn(zioMongo, zioMongoCirce)
+  .dependsOn(`zio-mongo`, `circe-codec`, `zio-json-codec`)
 
-lazy val circeExamples = (project in file("zio-mongo-circe-examples"))
+lazy val `circe-examples` = (project in file("circe-examples"))
   .settings(
     publish / skip := true,
     libraryDependencies ++= Seq(
       Circe.circeGeneric
     )
   )
-  .dependsOn(zioMongo, zioMongoCirce)
+  .dependsOn(`zio-mongo`, `circe-codec`)
 
-lazy val zioJsonExamples = (project in file("zio-json-mongo-examples"))
+lazy val `zio-json-examples` = (project in file("zio-json-examples"))
   .settings(
     publish / skip := true,
     libraryDependencies ++= Seq(
       ZioJson.zioJson
     )
   )
-  .dependsOn(zioMongo, zioJsonMongo)
+  .dependsOn(`zio-mongo`, `zio-json-codec`)
