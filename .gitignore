@@ -41,3 +41,4 @@ metals.sbt
 .vscode
 
 site/
+.cache
