@@ -1,4 +1,6 @@
 ---
+description: ZIO-Mongo is a library for interacting with MongoDB in a purely functional way. It is built on top of the ZIO library and uses the Java Reactive Streams Driver for MongoDB. It is compatible with Scala 3 & ZIO 2 and supports ZIO JSON and Circe codecs.
+
 hide:
   - toc
   - navigation

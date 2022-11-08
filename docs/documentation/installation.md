@@ -1,4 +1,5 @@
 ---
+description: Learn how to add zio-mongo to your project, and how to use it with SBT.
 hide:
   - toc
 ---

@@ -1,15 +1,15 @@
 site_name: zio-mongo
+site_url: https://zio-mongo.bilal-fazlani.com
 site_description: ZIO wrapper for MongoDB Java Reactive Streams
 repo_name: 'bilal-fazlani/zio-mongo'
 repo_url: 'https://github.com/bilal-fazlani/zio-mongo'
 edit_uri: edit/main/docs/
-strict: false
+strict: true
 
 theme:
   features:
     - navigation.tabs
     - instant
-    # - toc.integrate
     - navigation.sections
     - navigation.top
 #    - header.autohide
@@ -60,6 +60,7 @@ markdown_extensions:
 
 plugins:
   - search
+  - social
   - awesome-pages:
       collapse_single_pages: true
       strict: true

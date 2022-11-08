@@ -39,3 +39,5 @@ metals.sbt
 .bloop
 .metals
 .vscode
+
+site/
