@@ -60,7 +60,11 @@ markdown_extensions:
 
 plugins:
   - search
-  - social
+  - social:
+      cards_color:
+        fill: "#670702"
+        text: rgb(255, 231, 71)
+
   - awesome-pages:
       collapse_single_pages: true
       strict: true
