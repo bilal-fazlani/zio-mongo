@@ -1,10 +1,14 @@
+<img src="logo-s.png" style="width: 7rem;float: left;margin-right: 1em">
+
 # ZIO-MONGO
 
 ![Maven Central](https://img.shields.io/maven-central/v/com.bilal-fazlani.zio-mongo/zio-mongo_3?color=blue&label=Latest%20Version&style=for-the-badge)
 
 ZIO wrapper for [MongoDB Java Reactive Streams](https://www.mongodb.com/docs/drivers/reactive-streams/)
 
->With support for ZIO JSON and Circe codecs
+<div style="clear: both" ></div>
+
+> With support for ZIO JSON and Circe codecs
 
 ### Dependencies
 
