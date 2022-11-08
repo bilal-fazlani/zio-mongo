@@ -23,5 +23,26 @@
   --md-accent-fg-color: rgb(193, 136, 12);
 
   /* Footer */
+  --md-footer-bg-color: hsl(0deg 8% 16% / 87%);
   --md-footer-bg-color--dark: #232323;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  clear: both;
+}
+
+.mainlogo {
+  width: 10rem;
+  float: left;
+  margin-right: 1rem;
+}
+
+@media (max-width: 768px) {
+  .mainlogo {
+    float: none;
+  }
 }

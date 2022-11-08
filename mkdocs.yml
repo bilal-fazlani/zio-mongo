@@ -9,7 +9,7 @@ theme:
   features:
     - navigation.tabs
     - instant
-    - toc.integrate
+    # - toc.integrate
     - navigation.sections
     - navigation.top
 #    - header.autohide
