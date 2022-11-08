@@ -1,4 +1,4 @@
-<img src="logo-s.png" style="width: 7rem;">
+<img src="media/logo-medium.png" style="width: 18rem;">
 
 # ZIO-MONGO
 
