@@ -1,4 +1,4 @@
-<img src="media/logo-medium.png" style="width: 18rem;">
+<img src="https://raw.githubusercontent.com/bilal-fazlani/zio-mongo/main/media/logo-medium.png" style="width: 18rem;">
 
 # ZIO-MONGO
 
