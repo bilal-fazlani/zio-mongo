@@ -12,7 +12,6 @@ theme:
     - instant
     - navigation.sections
     - navigation.top
-#    - header.autohide
 
   name: 'material'
   icon:
@@ -62,8 +61,8 @@ plugins:
   - search
   - social:
       cards_color:
-        fill: "#670702"
-        text: rgb(255, 231, 71)
+        fill: "#bdbdbd"
+        text: "black"
 
   - awesome-pages:
       collapse_single_pages: true

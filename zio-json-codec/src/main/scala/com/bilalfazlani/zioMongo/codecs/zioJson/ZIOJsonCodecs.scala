@@ -3,17 +3,19 @@ package codecs.zioJson
 
 import com.mongodb.MongoClientException
 import org.bson.codecs.*
-import org.bson.codecs.configuration.{CodecProvider, CodecRegistry}
+import org.bson.codecs.configuration.{ CodecProvider, CodecRegistry }
 import org.bson.json.JsonObject
 import org.bson.types.ObjectId
-import org.bson.{BsonReader, BsonType, BsonWriter, Document}
+import org.bson.{ BsonReader, BsonType, BsonWriter, Document }
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
-import zio.json.ast.{Json, JsonCursor}
-import zio.json.{JsonDecoder, JsonEncoder}
-
-import java.time.{Instant, LocalDate}
+import zio.json.ast.{ Json, JsonCursor }
+import zio.json.*
+import java.time.{ Instant, LocalDate }
 import scala.reflect.ClassTag
 import scala.util.Try
+import scala.deriving.Mirror
+
+extension (t: JsonCodec.type) inline def derived[T: Mirror.Of]: JsonCodec[T] = DeriveJsonCodec.gen[T]
 
 case class MongoJsonParsingException(jsonString: String, message: String) extends MongoClientException(message)
 
