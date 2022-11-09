@@ -27,6 +27,17 @@
   --md-footer-bg-color--dark: #232323;
 }
 
+[data-md-color-scheme="slate"] .md-button {
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
+}
+
+[data-md-color-scheme="slate"] .md-button--primary {
+  /* border-color: var(--md-primary-fg-color); */
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-primary-bg-color);
+}
+
 h2,
 h3,
 h4,
