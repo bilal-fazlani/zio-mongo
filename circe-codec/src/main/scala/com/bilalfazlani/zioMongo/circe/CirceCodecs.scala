@@ -1,29 +1,25 @@
-package com.bilalfazlani.zioMongo.circe
+package com.bilalfazlani.zioMongo
+package codecs.circe
 
 import com.mongodb.MongoClientException
-import io.circe.Decoder
-import io.circe.Encoder
-import io.circe.Json
-import io.circe.JsonObject
+import io.circe.{Codec => CirceCodec, *}
 import io.circe.parser.{ decode => circeDecode }
-import org.bson.BsonReader
-import org.bson.BsonType
-import org.bson.BsonWriter
-import org.bson.Document
-import org.bson.codecs.Codec
-import org.bson.codecs.DecoderContext
-import org.bson.codecs.DocumentCodec
-import org.bson.codecs.EncoderContext
-import org.bson.codecs.StringCodec
+import io.circe.generic.semiauto.deriveCodec
+import org.bson.*
+import org.bson.codecs.{Encoder => BsonEncoder, Decoder => BsonDecoder, *}
 import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistry
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.bson.types.ObjectId
 
+import scala.deriving.Mirror
 import java.time.Instant
 import java.time.LocalDate
 import scala.reflect.ClassTag
 import scala.util.Try
+
+
+extension (t: CirceCodec.type) inline def derived[T: Mirror.Of]: CirceCodec[T] = deriveCodec[T]
 
 case class MongoJsonParsingException(jsonString: String, message: String) extends MongoClientException(message)
 

@@ -10,6 +10,7 @@ import org.mongodb.scala.model.Updates.set
 import zio.*
 import zio.Console.*
 import zio.stream.ZSink
+import com.bilalfazlani.zioMongo.codecs.circe.given
 
 object CirceExample extends ZIOAppDefault {
 

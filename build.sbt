@@ -52,7 +52,8 @@ lazy val `circe-codec`: Project = (project in file("circe-codec"))
     description := "Circe codecs for zio-mongo",
     name        := "circe-codec",
     libraryDependencies ++= Seq(
-      Circe.circeParser
+      Circe.circeParser,
+      Circe.circeGeneric
     )
   )
   .dependsOn(`zio-mongo`)

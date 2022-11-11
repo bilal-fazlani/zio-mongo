@@ -6,6 +6,8 @@ hide:
 
 # Installation
 
+![Maven Central](https://img.shields.io/maven-central/v/com.bilal-fazlani.zio-mongo/zio-mongo_3?color=blue&label=Latest%20Version&style=for-the-badge)
+
 Add the following to your `build.sbt` file:
 
 ```scala
