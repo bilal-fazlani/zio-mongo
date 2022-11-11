@@ -1,4 +1,19 @@
+---
+hide:
+  - toc
+---
+
 # Deriving ZIO-JSON codecs
+
+
+Dependency
+
+![Maven Central](https://img.shields.io/maven-central/v/com.bilal-fazlani.zio-mongo/zio-mongo_3?color=blue&label=Latest%20Version&style=for-the-badge)
+
+```scala
+libraryDependencies +=  "com.bilal-fazlani.zio-mongo" %% "zio-json-codec" % zioMongoVersion
+```
+
 
 You can derive codes for case classes using `derives` keyword
 

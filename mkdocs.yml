@@ -8,10 +8,15 @@ strict: true
 
 theme:
   features:
-    - navigation.tabs
     - instant
-    - navigation.sections
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.expand
+    # - navigation.sections
+    - navigation.indexes
     - navigation.top
+    - toc.follow
+
 
   name: 'material'
   icon:

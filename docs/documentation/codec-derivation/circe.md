@@ -1,4 +1,17 @@
+---
+hide:
+  - toc
+---
+
 # Deriving Circe codecs
+
+Dependency
+
+![Maven Central](https://img.shields.io/maven-central/v/com.bilal-fazlani.zio-mongo/zio-mongo_3?color=blue&label=Latest%20Version&style=for-the-badge)
+
+```scala
+libraryDependencies +=  "com.bilal-fazlani.zio-mongo" %% "circe-codec" % zioMongoVersion
+```
 
 You can derive circe codecs using `derives` keyword
 
