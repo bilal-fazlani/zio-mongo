@@ -2,6 +2,7 @@ site_name: zio-mongo
 site_description: ZIO wrapper for MongoDB Java Reactive Streams
 repo_name: 'bilal-fazlani/zio-mongo'
 repo_url: 'https://github.com/bilal-fazlani/zio-mongo'
+site_url: 'https://zio-mongo.bilal-fazlani.com'
 edit_uri: edit/main/docs/
 strict: !ENV [CI, false]
 
