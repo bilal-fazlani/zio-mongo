@@ -42,3 +42,4 @@ metals.sbt
 
 site/
 .cache
+Pipfile

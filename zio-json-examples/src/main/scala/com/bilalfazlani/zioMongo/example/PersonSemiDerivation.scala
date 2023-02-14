@@ -1,4 +1,4 @@
-package example
+package example2
 
 import com.bilalfazlani.zioMongo.codecs.zioJson.{ given, * }
 import zio.json.JsonCodec
@@ -9,4 +9,6 @@ case class Person(
     name: String,
     lastName: String,
     age: Int
-) derives JsonCodec
+) {
+  given JsonCodec[Person] = zio.json.DeriveJsonCodec.gen[Person]
+}

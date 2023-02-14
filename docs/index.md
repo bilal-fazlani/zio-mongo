@@ -14,5 +14,5 @@ zio-mongo is a library for interacting with MongoDB in a purely functional way. 
 
 It is compatible with Scala 3 &  ZIO 2 and supports ZIO JSON and Circe codecs.
 
-[:material-book: Documentation](/documentation/installation/){ .md-button .md-button--primary }
+[:material-book: Documentation](/getting-started/){ .md-button .md-button--primary }
 [:material-github: Github](https://github.com/bilal-fazlani/zio-mongo){ .md-button }

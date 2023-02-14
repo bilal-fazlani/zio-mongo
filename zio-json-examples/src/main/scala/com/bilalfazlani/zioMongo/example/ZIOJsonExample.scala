@@ -1,7 +1,7 @@
-package com.bilalfazlani.zioMongo
 package example
 
-import codecs.zioJson.given
+import com.bilalfazlani.zioMongo.*
+import com.bilalfazlani.zioMongo.codecs.zioJson.given
 import org.bson.types.ObjectId
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Updates.set

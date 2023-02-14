@@ -1,10 +1,9 @@
 site_name: zio-mongo
-site_url: https://zio-mongo.bilal-fazlani.com
 site_description: ZIO wrapper for MongoDB Java Reactive Streams
 repo_name: 'bilal-fazlani/zio-mongo'
 repo_url: 'https://github.com/bilal-fazlani/zio-mongo'
 edit_uri: edit/main/docs/
-strict: true
+strict: !ENV [CI, false]
 
 theme:
   features:
@@ -12,7 +11,7 @@ theme:
     - navigation.tracking
     - navigation.tabs
     - navigation.expand
-    # - navigation.sections
+    - navigation.footer    
     - navigation.indexes
     - navigation.top
     - toc.follow
@@ -56,7 +55,8 @@ markdown_extensions:
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.superfences
-  - pymdownx.tabbed
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
@@ -66,10 +66,10 @@ markdown_extensions:
 plugins:
   - search
   - social:
+      cards: !ENV [CI, false]
       cards_color:
         fill: "#bdbdbd"
         text: "black"
-
   - awesome-pages:
       collapse_single_pages: true
       strict: true

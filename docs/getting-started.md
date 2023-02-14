@@ -1,17 +1,46 @@
+---
+description: Get started with zio-mongo. Learn how to connect to MongoDB, insert documents, query documents, update documents, delete documents, and more.
+hide:
+  - toc
+  - navigation
+---
+
+# Getting Started
+
+## Installation
+
+![Maven Central](https://img.shields.io/maven-central/v/com.bilal-fazlani.zio-mongo/zio-mongo_3?color=blue&label=Latest%20Version&style=for-the-badge)
+
+Add the following to your `build.sbt` file:
+
+```scala
+val zioMongo = "com.bilal-fazlani.zio-mongo"
+val zioMongoVersion = "<ADD VERSION HERE>"
+
+libraryDependencies ++= Seq(
+  zioMongo %% "zio-mongo" % zioMongoVersion,
+
+  // for circe codecs
+  zioMongo %% "circe-codec" % zioMongoVersion,
+  // OR for zio-json codecs
+  zioMongo %% "zio-json-codec" % zioMongoVersion, 
+)
+```
+
+## Example
+
+```scala
 package example
 
-import io.circe.generic.auto.*
+import com.bilalfazlani.zioMongo.*
+import com.bilalfazlani.zioMongo.codecs.zioJson.given
 import org.bson.types.ObjectId
-import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Updates.set
-import zio.*
-import zio.Console.*
-import zio.stream.ZSink
-import com.bilalfazlani.zioMongo.*
-import com.bilalfazlani.zioMongo.codecs.circe.given
+import zio.Console.printLine
+import zio.ZIOAppDefault
 
-object CirceExample extends ZIOAppDefault {
+object ZIOJsonExample extends ZIOAppDefault {
 
   val persons: Seq[Person] = Seq(
     Person(ObjectId(), "Charles", "Babbage", 34),
@@ -45,3 +74,4 @@ object CirceExample extends ZIOAppDefault {
     _       <- printLine(s"The updated person with name Jean is: $person")
   } yield ()
 }
+```
