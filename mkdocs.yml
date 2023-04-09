@@ -8,7 +8,7 @@ strict: !ENV [CI, false]
 
 theme:
   features:
-    - instant
+    - navigation.instant
     - navigation.tracking
     - navigation.tabs
     - navigation.expand
@@ -16,7 +16,6 @@ theme:
     - navigation.indexes
     - navigation.top
     - toc.follow
-
 
   name: 'material'
   icon:
